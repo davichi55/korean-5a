@@ -53,10 +53,17 @@
   .seg .btn{border:0;border-radius:0}
   /* ---- chapter / section picker ---- */
   .picker{padding:10px 16px 4px;border-bottom:1px solid var(--line);background:var(--bg2)}
-  .pickhdr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .pickhdr{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;cursor:pointer;user-select:none}
+  .pickhdr:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
   .pickhdr .t{font-size:13px;color:var(--dim)}
   .pickhdr .cnt{font-size:12px;color:var(--good);margin-left:auto}
-  .pickhdr .mini{font-size:12px;padding:5px 9px}
+  .pickhdr .mini{font-size:12px;padding:5px 9px;cursor:pointer}
+  .pickhdr .chev{font-size:10px;color:var(--dim);display:inline-block;transition:transform .15s;width:10px}
+  /* collapsed: the chapter rows fold away, the summary line in the header stays */
+  .picker.collapsed .chev{transform:rotate(-90deg)}
+  .picker.collapsed #chapters{display:none}
+  .picker.collapsed .pickhdr{margin-bottom:0}
+  .picker.collapsed{padding-bottom:8px}
   .chrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:5px 0}
   .chname{
     font-size:13px;font-weight:700;padding:5px 10px;border-radius:8px;cursor:pointer;
@@ -170,8 +177,9 @@
   </div>
 </header>
 
-<div class="picker">
-  <div class="pickhdr">
+<div class="picker" id="picker">
+  <div class="pickhdr" id="pickHdr" role="button" tabindex="0" aria-controls="chapters" aria-expanded="true">
+    <span class="chev" aria-hidden="true">▼</span>
     <span class="t" data-i="pick">Pick the chapters and sections you want to preview</span>
     <button class="btn mini" id="selAll" data-i="selall">All</button>
     <button class="btn mini" id="selNone" data-i="selnone">None</button>
@@ -308,12 +316,27 @@ function buildPicker(){
     });
     wrap.appendChild(row);
   });
-  const n=filtered().length;
-  $("#selcnt").textContent=state.sel.size+" "+T("sections")+" "+T("selected")+" · "+n+" "+T("words");
+  // Summary stays visible when the picker is folded, so name the sections while that is still short.
+  const n=filtered().length, k=state.sel.size;
+  const what = (k>0&&k<=2)
+    ? SECTIONS.filter(s=>state.sel.has(s.id)).map(s=>s.chTitle+" · "+s.title).join(", ")
+    : k+" "+T("sections")+" "+T("selected");
+  $("#selcnt").textContent=what+" · "+n+" "+T("words");
 }
 function selChanged(){store.set("k5a_sel",JSON.stringify([...state.sel]));state.fIdx=0;buildPicker();render();}
 $("#selAll").onclick=()=>{SECTIONS.forEach(s=>state.sel.add(s.id));selChanged();};
 $("#selNone").onclick=()=>{state.sel.clear();selChanged();};
+
+/* ---------- picker fold ---------- */
+function setPicker(open,save){
+  $("#picker").classList.toggle("collapsed",!open);
+  $("#pickHdr").setAttribute("aria-expanded",open?"true":"false");
+  if(save)store.set("k5a_pickopen",open?"1":"0");
+}
+$("#pickHdr").onclick=e=>{ if(e.target.closest("button"))return;   // All / None must not fold it
+  setPicker($("#picker").classList.contains("collapsed"),true); };
+$("#pickHdr").onkeydown=e=>{ if(e.key===" "||e.key==="Enter"){e.preventDefault();
+  setPicker($("#picker").classList.contains("collapsed"),true);} };
 
 /* ---------- filtering ---------- */
 function filtered(){
@@ -411,6 +434,10 @@ $("#search").oninput=e=>{state.q=e.target.value;state.fIdx=0;render();};
 function render(){buildPicker();if(state.mode==="browse")renderBrowse();else renderFlash();}
 
 /* ---------- start ---------- */
+// First visit: folded on a phone (nine rows of chips would push the words off screen), open on a
+// wide screen. After that the reader's own choice wins.
+const savedOpen=store.get("k5a_pickopen");
+setPicker(savedOpen===null||savedOpen===undefined ? window.innerWidth>=760 : savedOpen==="1", false);
 const savedLang=store.get("k5a_lang");
 if(savedLang&&LANGS.includes(savedLang)){applyLang(savedLang,false);render();}
 else{applyLang("en",false);render();showLangPick();}
