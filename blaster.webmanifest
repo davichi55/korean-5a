@@ -1,0 +1,15 @@
+{
+  "name": "Word Blaster 5A",
+  "short_name": "Word Blaster",
+  "description": "Shoot the right Korean word — Sogang Korean 5A vocabulary game",
+  "id": "./blaster.html",
+  "start_url": "./blaster.html",
+  "scope": "./blaster.html",
+  "display": "standalone",
+  "background_color": "#05070f",
+  "theme_color": "#05070f",
+  "icons": [
+    { "src": "icon-blaster-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-blaster-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
