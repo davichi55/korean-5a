@@ -1,0 +1,17 @@
+{
+  "name": "단어 바",
+  "short_name": "단어 바",
+  "description": "5A 중요 단어를 팀으로 복습하는 가게 게임",
+  "id": "./bar.html",
+  "start_url": "./bar.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1E1726",
+  "theme_color": "#1E1726",
+  "lang": "ko",
+  "icons": [
+    { "src": "icon-bar-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-bar-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
