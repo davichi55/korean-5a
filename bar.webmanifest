@@ -4,7 +4,7 @@
   "description": "5A 중요 단어를 팀으로 복습하는 가게 게임",
   "id": "./bar.html",
   "start_url": "./bar.html",
-  "scope": "./",
+  "scope": "./bar.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#1E1726",

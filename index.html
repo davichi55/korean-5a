@@ -9,6 +9,12 @@
 <meta property="og:type" content="website">
 <meta name="description" content="Sogang Korean 5A vocabulary — 8 chapters, video + reading + speaking sections, in English, Chinese, Thai and Russian.">
 <meta name="theme-color" content="#0f1420">
+<!-- installable as an app (full screen, own icon): manifest + the shared pass-through sw.js -->
+<link rel="manifest" href="vocab.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="5A 단어">
+<link rel="apple-touch-icon" href="icon-vocab-192.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%96%3C/text%3E%3C/svg%3E">
 <style>
   :root{
@@ -475,6 +481,7 @@ setPicker(savedOpen===null||savedOpen===undefined ? window.innerWidth>=760 : sav
 const savedLang=store.get("k5a_lang");
 if(savedLang&&LANGS.includes(savedLang)){applyLang(savedLang,false);render();}
 else{applyLang("en",false);render();showLangPick();}
+if("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
 </html>
