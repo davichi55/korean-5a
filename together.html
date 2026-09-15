@@ -75,11 +75,92 @@
     padding:10px 16px;border-radius:12px;font-size:14px;box-shadow:var(--shadow);max-width:90vw}
   .err{color:var(--bad)}
   .star{color:var(--gold)}
+
+  /* ---- chat: a round button bottom-right that opens a panel; in 설명왕 the chat IS the screen ---- */
+  #chatFab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;
+    border:0;background:var(--accent);color:#fff;font-size:24px;box-shadow:var(--shadow);cursor:pointer;z-index:20}
+  #chatFab .badge{position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;border-radius:11px;background:var(--bad);
+    color:#fff;font-size:12px;font-weight:700;line-height:22px;padding:0 6px}
+  #chatPanel{position:fixed;right:10px;left:10px;bottom:calc(10px + env(safe-area-inset-bottom));max-width:420px;margin-left:auto;
+    height:min(62vh,520px);background:var(--bg2);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;z-index:30}
+  #chatPanel header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);font-weight:700}
+  #chatPanel header button{background:none;border:0;color:var(--dim);font-size:22px;cursor:pointer}
+  .feed{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:0}
+  .msg{font-size:14.5px;line-height:1.4;word-break:break-word}
+  .msg b{color:var(--accent);font-weight:700;margin-right:6px}
+  .msg.me b{color:var(--gold)}
+  .msg.hint{background:rgba(91,140,255,.14);border:1px solid rgba(91,140,255,.35);border-radius:12px;padding:8px 10px;font-size:16px}
+  .msg.hint b{color:var(--gold)}
+  .msg.sys{color:var(--dim);font-size:13px;text-align:center}
+  .chatIn{border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+  .quick{display:flex;gap:6px;margin-bottom:6px;overflow-x:auto}
+  .quick button{flex:0 0 auto;background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:5px 11px;font-size:14px;cursor:pointer}
+  .sendRow{display:flex;gap:8px}
+  .sendRow input{flex:1;padding:9px 12px}
+  .sendRow button{border:0;background:var(--accent);color:#fff;border-radius:10px;padding:0 14px;font-weight:700;font-size:15px;cursor:pointer}
+  body.nochat #chatFab, body.nochat #chatPanel, body.exmode #chatFab, body.exmode #chatPanel{display:none!important}
+  #chatPanel[hidden], #chatBadge[hidden]{display:none}       /* display:flex above would otherwise beat the hidden attribute */
+  body.exmode .toast{bottom:130px}
+
+  /* ---- 설명왕 ---- */
+  body.exmode .wrap{max-width:560px;height:100dvh;padding:10px 12px 0;display:flex;flex-direction:column}
+  .exTop{display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:6px}
+  .exTop .who{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .exTop .clock{font-weight:800;color:var(--gold);min-width:34px;text-align:right}
+  .mini{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:7px 11px;font-size:14px;font-weight:700;cursor:pointer}
+  .secret{padding:12px 14px;margin-bottom:8px}
+  .secret .kr{font-size:26px;font-weight:800;margin:2px 0 4px}
+  .secret .mean{font-size:15px;line-height:1.45}
+  .secret .ex{color:var(--dim);font-size:13px;margin-top:4px}
+  .exStatus{font-size:13px;color:var(--dim);margin:0 0 6px;line-height:1.45}
+  .exBox{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg2);border:1px solid var(--line);border-radius:14px 14px 0 0}
+  .sheet{position:fixed;inset:0;background:rgba(5,8,15,.72);z-index:40;display:flex;align-items:flex-start;justify-content:center;padding:60px 12px 12px}
+  .sheet .inner{background:var(--card);border:1px solid var(--line);border-radius:16px;width:100%;max-width:520px;max-height:80vh;display:flex;flex-direction:column}
+  .sheet .inner header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);font-weight:700}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px;overflow-y:auto}
+  .wchip{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 11px;font-size:16px;cursor:pointer}
+  .wchip.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+  .wchip:disabled{opacity:.35;text-decoration:line-through;cursor:default}
+  .sheet .foot{padding:10px 14px;border-top:1px solid var(--line)}
+
+  /* ---- avatars ---- */
+  .av{display:inline-block;width:24px;height:24px;flex:0 0 auto;vertical-align:middle}
+  .av svg{width:100%;height:100%;display:block}
+  .chip .av{width:22px;height:22px;margin:-3px 5px -3px -5px}
+  .msg{display:flex;gap:7px;align-items:flex-start}
+  .msg .av{margin-top:1px}
+  .msg.sys{display:block}
+  .msg.syshint{display:block;text-align:center;color:var(--gold);font-size:14px;background:rgba(255,207,92,.08);border:1px dashed rgba(255,207,92,.35);border-radius:10px;padding:6px 8px}
+  td .av{width:26px;height:26px;margin-right:6px}
+  .avEdit{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center}
+  .avBig{width:96px;height:96px;border-radius:50%;background:var(--bg2);border:1px solid var(--line);padding:6px}
+  .avRow{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
+  .avRow button{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer}
+  .avRow button.on{background:var(--txt);color:var(--bg);font-weight:700}
+  .avRow .sw{width:26px;height:26px;padding:0;border-radius:50%;border:2px solid transparent}
+  .avRow .sw.on{border-color:#fff;box-shadow:0 0 0 2px var(--accent)}
+  .avLbl{font-size:11.5px;color:var(--dim);letter-spacing:.06em}
+  /* ---- 설명왕 extras ---- */
+  .facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .facts span{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:12.5px}
+  .starters{display:flex;gap:6px;overflow-x:auto;margin-top:8px}
+  .starters button{flex:0 0 auto;background:rgba(255,207,92,.1);border:1px solid rgba(255,207,92,.4);color:var(--gold);border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer}
+  .mask{font-size:22px;letter-spacing:.18em;font-weight:800;color:var(--gold)}
+  .pop{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);background:var(--good);color:#06291a;font-size:26px;font-weight:800;
+    padding:18px 26px;border-radius:18px;box-shadow:var(--shadow);z-index:60;text-align:center;animation:pop .25s ease-out}
+  @keyframes pop{from{transform:translate(-50%,-50%) scale(.6);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
 </style>
 </head>
-<body>
+<body class="nochat">
 <div class="wrap" id="app"></div>
 <div class="toast" id="toast" hidden></div>
+<button id="chatFab" aria-label="채팅">💬<span class="badge" id="chatBadge" hidden>0</span></button>
+<div id="chatPanel" hidden>
+  <header><span>채팅</span><button id="chatClose" aria-label="닫기">×</button></header>
+  <div class="feed" id="chatFeed"></div>
+  <div class="chatIn" id="chatIn"></div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 /* 5A 단어 같이 외우기 — a live word game for the class, built from words_5a.js by build_together.js.
@@ -91,6 +172,7 @@ const DATA = {"langs":[{"code":"en","native":"English"},{"code":"zh","native":"�
 const C = DATA.cards, SEC = DATA.sections, LANGS = DATA.langs, SCHED = DATA.schedule;
 const PREFIX = "davichi55-k5a-together-";
 const QMS = 15000, REVEAL_MS = 3500, BOARD_MAX_TRIES = 4;
+const EX_MS = 90000, EX_WRONG = 3, EX_REVEAL_MS = 8000;   // 설명왕: time per word, wrong guesses per person, time to read the answer
 
 const $ = s => document.querySelector(s);
 const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -108,6 +190,68 @@ const BCP = {zh:"zh-Hans", zht:"zh-Hant"};
 const hl = c => BCP[c] || c;
 const lab = id => (C[id].lab[LANG] || C[id].lab.en);
 const full = id => (C[id].tr[LANG] || C[id].tr.en);
+
+/* ---------- facts about a word, in Korean (tools for the explainer, timed hints for everyone else) ---------- */
+const POS_KO = { noun:"명사", verb:"동사", adjective:"형용사", adverb:"부사", counter:"단위 명사", interjection:"감탄사",
+                 determiner:"관형사", idiom:"관용 표현", expression:"표현", grammar:"문법" };
+const SEC_KO = { v:"비디오 수업", r1:"읽기 1", r2:"읽기 2", s1:"말하기 1" };
+const CARD_SEC = {};
+for(const [s, v] of Object.entries(SEC)) for(const id of v.ids) CARD_SEC[id] = s;
+const posKo = id => POS_KO[C[id].pos] || "";
+const placeKo = id => { const s = CARD_SEC[id]; if(!s || !SEC[s]) return ""; return SEC[s].ch + " " + (SEC_KO[s.split("-")[1]] || SEC[s].t); };
+const sylls = id => [...C[id].kr.replace(/[^가-힣]/g, "")];
+/* the example with the word hidden; null when the word can't be found in it (then it would give nothing away,
+   but it would not help either) */
+function maskedExample(id){
+  const ex = C[id].ex; if(!ex) return null;
+  const kr = C[id].kr.replace(/^[-~]/, "").trim();
+  const parts = [kr];
+  if(kr.endsWith("다") && kr.length >= 3) parts.push(kr.slice(0, -1));
+  if(kr.endsWith("하다") && kr.length >= 4) parts.push(kr.slice(0, -2));
+  for(const p of parts.sort((a, b) => b.length - a.length)){
+    if(p.length >= 2 && ex.includes(p)) return ex.split(p).join("○".repeat([...p].length));
+  }
+  return null;
+}
+
+/* ---------- avatars: drawn from four choices, so they cost a few bytes to send ---------- */
+const AV_COLORS = ["#7c6cf0","#f26b6b","#3cc6c0","#f6d55c","#9fe3c9","#f7934c","#e3877a","#5fd07a","#5b7cf0","#f5a3c7"];
+const AV_EYES = [["happy","행복"],["cool","선글라스"],["wink","윙크"],["sleepy","졸림"],["surprised","놀람"]];
+const AV_MOUTH = [["smile","미소"],["grin","활짝"],["tongue","메롱"],["flat","무표정"],["open","벌림"]];
+const AV_ACC = [["none","없음"],["crown","왕관"],["hat","모자"],["headband","머리띠"],["glasses","안경"],["bow","리본"]];
+function cleanAv(a){
+  const n = (v, max) => Number.isInteger(v) && v >= 0 && v < max ? v : 0;
+  a = a || {};
+  return { c:n(a.c, AV_COLORS.length), e:n(a.e, AV_EYES.length), m:n(a.m, AV_MOUTH.length), a:n(a.a, AV_ACC.length) };
+}
+function avatarSvg(av){
+  av = cleanAv(av);
+  const ink = "#2a1c2e", st = 'stroke="' + ink + '" stroke-width="4" stroke-linecap="round" fill="none"';
+  const eyes = {
+    happy: '<path d="M31 50 q6 -8 12 0" ' + st + '/><path d="M57 50 q6 -8 12 0" ' + st + '/>',
+    cool: '<rect x="26" y="42" width="21" height="11" rx="4" fill="' + ink + '"/><rect x="53" y="42" width="21" height="11" rx="4" fill="' + ink + '"/><path d="M47 46 h6" ' + st + '/>',
+    wink: '<circle cx="37" cy="48" r="4.5" fill="' + ink + '"/><path d="M57 49 q6 -6 12 0" ' + st + '/>',
+    sleepy: '<path d="M31 50 h12" ' + st + '/><path d="M57 50 h12" ' + st + '/>',
+    surprised: '<circle cx="37" cy="47" r="7" fill="#fff"/><circle cx="37" cy="47" r="3.5" fill="' + ink + '"/><circle cx="63" cy="47" r="7" fill="#fff"/><circle cx="63" cy="47" r="3.5" fill="' + ink + '"/>'
+  }[AV_EYES[av.e][0]];
+  const mouth = {
+    smile: '<path d="M38 64 q12 11 24 0" ' + st + '/>',
+    grin: '<path d="M33 61 q17 20 34 0 z" fill="#fff" stroke="' + ink + '" stroke-width="3" stroke-linejoin="round"/>',
+    tongue: '<path d="M37 63 q13 11 26 0" ' + st + '/><ellipse cx="53" cy="71" rx="6" ry="5" fill="#ff7aa8"/>',
+    flat: '<path d="M39 66 h22" ' + st + '/>',
+    open: '<ellipse cx="50" cy="67" rx="7.5" ry="8.5" fill="' + ink + '"/>'
+  }[AV_MOUTH[av.m][0]];
+  const acc = {
+    none: "",
+    crown: '<path d="M30 24 L34 8 L43 18 L50 5 L57 18 L66 8 L70 24 Z" fill="#ffd23f" stroke="#e0a800" stroke-width="2" stroke-linejoin="round"/><circle cx="50" cy="16" r="2.5" fill="#ff5d7a"/>',
+    hat: '<rect x="20" y="20" width="60" height="7" rx="3.5" fill="#33304a"/><rect x="31" y="2" width="38" height="21" rx="5" fill="#33304a"/><rect x="31" y="15" width="38" height="5" fill="#ff6b6b"/>',
+    headband: '<path d="M15 40 Q50 2 85 40" stroke="#ff5d7a" stroke-width="7" fill="none" stroke-linecap="round"/>',
+    glasses: '<circle cx="37" cy="48" r="10" stroke="' + ink + '" stroke-width="3" fill="rgba(255,255,255,.18)"/><circle cx="63" cy="48" r="10" stroke="' + ink + '" stroke-width="3" fill="rgba(255,255,255,.18)"/><path d="M47 47 h6" stroke="' + ink + '" stroke-width="3"/>',
+    bow: '<path d="M62 14 L76 6 L76 24 Z M90 14 L76 6 L76 24 Z" fill="#ff7aa8" transform="translate(-6 0)"/><circle cx="70" cy="15" r="4" fill="#e05590"/>'
+  }[AV_ACC[av.a][0]];
+  return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="54" r="40" fill="' + AV_COLORS[av.c] + '"/>' + eyes + mouth + acc + '</svg>';
+}
+const avHtml = av => '<span class="av">' + avatarSvg(av) + '</span>';
 
 /* ---------- the class schedule: which words belong to which night ---------- */
 const DOW = "일월화수목금토";
@@ -147,7 +291,8 @@ function pickWords(plan, count){
 }
 
 /* ---------- identity ---------- */
-const ME = { pid:null, host:false, name: store.get("k5a_together_name", ""), peer:null, conn:null, lastMsg:0 };
+const ME = { pid:null, host:false, name: store.get("k5a_together_name", ""), peer:null, conn:null, lastMsg:0,
+             av: (() => { try{ return cleanAv(JSON.parse(store.get("k5a_together_av", "null")) || { c:Math.floor(Math.random() * AV_COLORS.length), e:0, m:0, a:0 }); }catch(e){ return cleanAv(); } })() };
 let G = null;            // the game, only on the host
 let VIEW = { q:null };   // what this screen is showing
 
@@ -165,7 +310,8 @@ function home(err){
     '<p class="sub">다음 수업: <b>' + esc(nightText(ti)) + '</b><br>중요 단어(<span class="star">★</span>) 먼저 · 틀린 단어는 다 같이 맞힐 때까지 다시 나와요.</p>' +
     (err ? '<p class="err">' + esc(err) + '</p>' : '') +
     '<div class="card"><div class="row"><div><label>이름</label><input id="name" maxlength="16" value="' + esc(ME.name) + '" placeholder="이름"></div>' +
-    '<div><label>뜻 언어</label>' + langSelect() + '</div></div></div>' +
+    '<div><label>뜻 언어</label>' + langSelect() + '</div></div>' +
+    '<label>내 아바타</label><div class="avEdit"><div class="avBig" id="avBig"></div><div id="avCtl"></div></div></div>' +
     '<div class="card"><h2>방에 참여하기</h2><label>방 코드</label><input id="code" class="code" maxlength="4" value="' + esc(room) + '" placeholder="ABCD">' +
     '<button class="btn" id="join">참여하기</button></div>' +
     '<div class="card"><h2>방 만들기 / 혼자 하기</h2>' +
@@ -173,12 +319,28 @@ function home(err){
     '<button class="btn alt" id="solo">혼자 연습하기</button>' +
     '<p class="note" style="margin-top:10px">호스트는 게임이 끝날 때까지 이 창을 열어 두세요. 다른 탭으로 가거나 화면이 꺼지면 게임이 멈출 수 있어요.</p></div>';
   bindLang();
+  paintAvatarEditor();
   const nameOk = () => { const n = $("#name").value.trim().slice(0, 16); if(!n){ toast("이름을 입력하세요"); $("#name").focus(); return false; } ME.name = n; store.set("k5a_together_name", n); return true; };
   const online = () => { if(typeof Peer !== "undefined") return true; toast("인터넷 연결이 필요해요 · 혼자 연습은 할 수 있어요"); return false; };
   $("#join").onclick = () => { if(!nameOk() || !online()) return; const c = $("#code").value.toUpperCase().replace(/[^A-Z]/g, ""); if(c.length !== 4){ toast("방 코드 4글자를 입력하세요"); return; } joinRoom(c); };
   $("#host").onclick = () => { if(nameOk() && online()) newGame(false); };
   $("#solo").onclick = () => { if(nameOk()) newGame(true); };
   if(room) $("#code").scrollIntoView({block:"center"});
+}
+
+function paintAvatarEditor(){
+  const big = $("#avBig"), ctl = $("#avCtl"); if(!big || !ctl) return;
+  big.innerHTML = avatarSvg(ME.av);
+  const row = (key, list, label) => '<div class="avLbl">' + label + '</div><div class="avRow">' +
+    list.map((o, i) => '<button data-k="' + key + '" data-i="' + i + '" class="' + (ME.av[key] === i ? "on" : "") + '">' + esc(o[1]) + '</button>').join("") + '</div>';
+  ctl.innerHTML = '<div class="avLbl">색</div><div class="avRow">' + AV_COLORS.map((c, i) =>
+      '<button class="sw' + (ME.av.c === i ? " on" : "") + '" data-k="c" data-i="' + i + '" style="background:' + c + '" aria-label="색 ' + (i + 1) + '"></button>').join("") + '</div>' +
+    row("e", AV_EYES, "눈") + row("m", AV_MOUTH, "입") + row("a", AV_ACC, "액세서리");
+  ctl.querySelectorAll("button").forEach(b => b.onclick = () => {
+    ME.av[b.dataset.k] = +b.dataset.i; ME.av = cleanAv(ME.av);
+    store.set("k5a_together_av", JSON.stringify(ME.av));
+    paintAvatarEditor();
+  });
 }
 
 function renderLobby(m){
@@ -188,17 +350,21 @@ function renderLobby(m){
   if(!m.solo) html += '<div class="card"><h2>방 코드</h2><div class="big-code">' + esc(m.code) + '</div>' +
     (hostCtl ? '<button class="btn alt" id="copyLink">참여 링크 복사</button>' : '') + '</div>';
   if(!m.solo) html += '<div class="card"><h2>참여한 사람 ' + m.players.length + '명</h2><div class="players">' +
-    m.players.map(p => '<span class="chip' + (p.pid === ME.pid ? " me" : "") + '">' + esc(p.name) + '</span>').join("") + '</div></div>';
+    m.players.map(p => '<span class="chip' + (p.pid === ME.pid ? " me" : "") + '">' + avHtml(p.av) + esc(p.name) + '</span>').join("") + '</div></div>';
   html += '<div class="card"><h2>오늘의 단어</h2>';
   if(hostCtl){
+    if(!m.solo) html += '<label>게임</label><select id="mode">' + [["quiz","단어 퀴즈"],["explain","설명왕 (채팅으로 설명하기)"]].map(([v, t]) =>
+      '<option value="' + v + '"' + (G.mode === v ? " selected" : "") + '>' + t + '</option>').join("") + '</select>';
+    if(G.mode === "explain") html += '<label>한 사람이 몇 번 설명?</label><select id="exRounds">' + [1,2,3].map(v =>
+      '<option value="' + v + '"' + (G.exRounds === v ? " selected" : "") + '>' + v + '번</option>').join("") + '</select>';
     html += '<label>어느 수업 준비?</label><select id="night">' + SCHED.map((e, i) => '<option value="' + i + '"' + (i === G.nightIdx ? " selected" : "") + '>' +
       esc(nightText(i)) + (i === tonightIndex() ? "  ← 다음 수업" : "") + '</option>').join("") + '</select>' +
       '<label>단어 수</label><select id="count">' + [["10","10개"],["20","20개"],["30","30개"],["star","★ 전부"]].map(([v, t]) =>
       '<option value="' + v + '"' + (String(G.count) === v ? " selected" : "") + '>' + t + '</option>').join("") + '</select>' +
-      '<p class="note" style="margin-top:10px">' + m.nWords + '단어 · 1라운드 한국어 → 뜻 · 2라운드 뜻 → 한국어 · 틀린 단어 클리어 보드</p>' +
-      '<button class="btn gold" id="start"' + (m.nWords < 4 ? " disabled" : "") + '>시작</button>';
+      '<p class="note" style="margin-top:10px">' + esc(modeNote(m)) + '</p>' +
+      '<button class="btn gold" id="start"' + (m.nWords < 4 || (m.mode === "explain" && m.players.length < 2) ? " disabled" : "") + '>시작</button>';
   } else {
-    html += '<p style="margin:0 0 6px"><b>' + esc(m.label) + '</b></p><p class="note">' + m.nWords + '단어 · 호스트가 시작할 때까지 기다리세요.</p>' +
+    html += '<p style="margin:0 0 6px"><b>' + esc(m.mode === "explain" ? "설명왕" : "단어 퀴즈") + ' · ' + esc(m.label) + '</b></p><p class="note">' + esc(modeNote(m)) + '<br>호스트가 시작할 때까지 기다리세요.</p>' +
       '<label>뜻 언어</label>' + langSelect();
   }
   html += '</div>';
@@ -207,6 +373,8 @@ function renderLobby(m){
   $("#app").innerHTML = html;
   bindLang();
   if(hostCtl){
+    const md = $("#mode"); if(md) md.onchange = e => { G.mode = e.target.value; lobbyUpdate(); };
+    const er = $("#exRounds"); if(er) er.onchange = e => { G.exRounds = +e.target.value; lobbyUpdate(); };
     $("#night").onchange = e => { G.nightIdx = +e.target.value; lobbyUpdate(); };
     $("#count").onchange = e => { G.count = e.target.value; lobbyUpdate(); };
     $("#start").onclick = startGame;
@@ -219,9 +387,20 @@ function renderLobby(m){
   const lv = $("#leave"); if(lv) lv.onclick = leave;
 }
 
+function modeNote(m){
+  if(m.mode === "explain") return m.nWords + "단어 · 한 사람이 단어를 한국어로 설명하고, 다른 사람은 단어 목록에서 맞혀요 · " +
+    (m.players.length < 2 ? "2명 이상 필요해요" : m.players.length + "명 × " + m.exRounds + "번 = " + Math.min(m.nWords, m.players.length * m.exRounds) + "단어");
+  return m.nWords + "단어 · 1라운드 한국어 → 뜻 · 2라운드 뜻 → 한국어 · 틀린 단어 클리어 보드";
+}
 const ROUND_NAME = { 1:"1라운드 · 한국어 → 뜻", 2:"2라운드 · 뜻 → 한국어", 3:"클리어 보드" };
 function renderRound(m){
   VIEW.q = null;
+  if(m.round === "ex"){
+    $("#app").innerHTML = '<div class="intro"><div class="n">설명왕</div><div class="t">한국어로 설명하기</div>' +
+      '<p class="note">설명하는 사람: 단어를 쉬운 한국어로 채팅에 설명하세요. 단어를 직접 쓰면 안 돼요.<br>' +
+      '다른 사람: 오른쪽 위 <b>단어 목록</b>에서 고르거나 채팅에 단어를 쓰세요. 한 단어에 기회는 ' + EX_WRONG + '번이에요.</p></div>';
+    return;
+  }
   $("#app").innerHTML = '<div class="intro"><div class="n">' + (m.round === 3 ? "마지막" : m.round + " / 2") + '</div>' +
     '<div class="t">' + esc(ROUND_NAME[m.round]) + '</div>' +
     '<p class="note">' + (m.round === 3 ? "틀렸던 단어 " + m.left + "개 · 모두가 맞히면 사라져요" :
@@ -275,10 +454,18 @@ function renderReveal(m){
 function renderEnd(m){
   VIEW.q = null;
   const medal = i => ["🥇","🥈","🥉"][i] || (i + 1) + ".";
-  let html = '<h1>끝! 수고했어요 👏</h1><p class="sub">' + esc(m.label) + ' · ' + m.words + '단어' +
-    (m.boardTotal ? ' · 클리어 보드 ' + m.cleared + ' / ' + m.boardTotal : ' · 틀린 단어 없음 ✨') + '</p>';
-  html += '<div class="card"><h2>점수</h2><table>' + m.scores.map((p, i) => '<tr><td>' + medal(i) + ' ' + esc(p.name) + (p.pid === ME.pid ? " (나)" : "") +
+  const ex = m.mode === "explain";
+  let html = '<h1>끝! 수고했어요 👏</h1><p class="sub">' + (ex ? "설명왕 · " : "") + esc(m.label) + ' · ' + m.words + '단어' +
+    (ex ? ' · 맞힌 단어 ' + m.played.filter(x => x.ok).length + ' / ' + m.played.length
+        : m.boardTotal ? ' · 클리어 보드 ' + m.cleared + ' / ' + m.boardTotal : ' · 틀린 단어 없음 ✨') + '</p>';
+  if(ex) m = Object.assign({}, m, { hardest: [] });
+  html += '<div class="card"><h2>점수</h2><table>' + m.scores.map((p, i) => '<tr><td>' + medal(i) + ' ' + avHtml(p.av) + esc(p.name) + (p.pid === ME.pid ? " (나)" : "") +
     '</td><td class="s">' + p.score + '</td></tr>').join("") + '</table></div>';
+  // 설명왕: every word of the night with its meaning in YOUR language, because a word you picked from the
+  // list without knowing it only teaches you something once you see what it means
+  if(ex && m.played.length) html += '<div class="card"><h2>오늘 설명한 단어</h2><ul class="hard" style="padding-left:18px;margin:0">' +
+    m.played.map(x => '<li><b lang="ko">' + esc(C[x.card].kr) + '</b> ' + (x.ok ? "✓" : "✗") + '<br><span lang="' + hl(LANG) + '">' + esc(full(x.card)) + '</span>' +
+      ' <span>· 설명: ' + esc(x.by) + '</span></li>').join("") + '</ul></div>';
   if(m.hardest.length) html += '<div class="card"><h2>오늘 제일 어려웠던 단어</h2><ul class="hard" style="padding-left:18px;margin:0">' +
     m.hardest.map(([id, n]) => '<li><b lang="ko">' + esc(C[id].kr) + '</b> <span lang="' + hl(LANG) + '">' + esc(lab(id)) + '</span> <span>· ' + n + '번 틀림</span></li>').join("") + '</ul></div>';
   if(ME.host && G){
@@ -304,7 +491,17 @@ function renderMessage(title, text, back){
 
 /* everything a screen receives, from the host over the network or from the host's own engine */
 function onMessage(m){
-  if(m.t === "lobby") renderLobby(m);
+  if(m.t !== "chat" && m.t !== "ex" && m.t !== "exYou") document.body.classList.remove("exmode");
+  if(["lobby","wait","round","q","reveal","end","ex","exReveal"].includes(m.t)) setChatAvailable(!(ME.host && G && G.solo));
+  if(m.t === "chat") addChat(m);
+  else if(m.t === "ex") renderEx(m);
+  else if(m.t === "exReveal") renderExReveal(m);
+  else if(m.t === "exYou"){   // only the person who guessed it sees this; the chat just says they got it
+    const sh = $("#wordSheet"); if(sh) sh.remove();
+    const d = document.createElement("div"); d.className = "pop"; d.innerHTML = '🎉 정답!<br><span lang="ko">' + esc(C[m.card].kr) + '</span> +' + m.pts;
+    document.body.appendChild(d); setTimeout(() => d.remove(), 2200);
+  }
+  else if(m.t === "lobby") renderLobby(m);
   else if(m.t === "wait") renderMessage("게임 진행 중", "다음 문제부터 같이 해요.");
   else if(m.t === "round") renderRound(m);
   else if(m.t === "q") renderQ(m);
@@ -325,7 +522,7 @@ function joinRoom(code){
   peer.on("open", id => {
     ME.pid = id;
     const conn = ME.conn = peer.connect(PREFIX + code, { reliable:true });
-    conn.on("open", () => { opened = true; clearTimeout(giveUp); ME.lastMsg = Date.now(); conn.send({ t:"hello", name:ME.name, lang:LANG }); });
+    conn.on("open", () => { opened = true; clearTimeout(giveUp); ME.lastMsg = Date.now(); conn.send({ t:"hello", name:ME.name, lang:LANG, av:ME.av }); });
     conn.on("data", m => { ME.lastMsg = Date.now(); if(m && m.t === "ping") conn.send({ t:"pong" }); else if(m) onMessage(m); });
     conn.on("close", () => { if(ME.conn === conn) { cleanup(); renderMessage("연결이 끊겼어요", "호스트와 연결이 끊겼어요. 같은 코드로 다시 참여할 수 있어요.", true); } });
   });
@@ -350,6 +547,7 @@ function cleanup(){
   try{ if(ME.conn) ME.conn.close(); }catch(e){}
   try{ if(ME.peer) ME.peer.destroy(); }catch(e){}
   ME.conn = null; ME.peer = null; ME.lastMsg = 0;
+  resetChat(); document.body.classList.remove("exmode"); EXV = null;
   if(ME.wake){ try{ ME.wake.release(); }catch(e){} ME.wake = null; }
   G = null;
 }
@@ -365,8 +563,9 @@ function newGame(solo){
   cleanup();
   ME.host = true; ME.pid = "me";
   G = { solo, code:"", players:new Map(), nightIdx:tonightIndex(), count:"20", phase:"lobby", timer:null, pinger:null,
+        mode:"quiz", exRounds:2, ex:null, exQueue:[], played:[], turn:0, turns:0,
         words:[], pool:[], stages:[], si:0, li:0, board:[], qn:0, cur:null, miss:{}, tries:{}, cleared:0, boardTotal:0 };
-  G.players.set("me", { pid:"me", name:ME.name, score:0, conn:null, alive:Date.now() });
+  G.players.set("me", { pid:"me", name:ME.name, av:ME.av, score:0, conn:null, alive:Date.now() });
   if(solo){ lobbyUpdate(); return; }
   renderMessage("방 만드는 중…", "잠시만요.");
   openHostPeer(0);
@@ -404,7 +603,8 @@ function broadcast(m, remoteOnly){ for(const p of G.players.values()) if(!(remot
 function lobbyMessage(){
   const plan = planFor(SCHED[G.nightIdx]);
   return { t:"lobby", solo:G.solo, code:G.code, label:nightText(G.nightIdx), nWords:pickWords(plan, G.count).length,
-           players:[...G.players.values()].map(p => ({ pid:p.pid, name:p.name })) };
+           mode:G.solo ? "quiz" : G.mode, exRounds:G.exRounds,
+           players:[...G.players.values()].map(p => ({ pid:p.pid, name:p.name, av:p.av })) };
 }
 function lobbyUpdate(){ if(G && G.phase === "lobby") broadcast(lobbyMessage()); }
 
@@ -413,11 +613,14 @@ function hostReceive(pid, m, conn){
   if(p) p.alive = Date.now();
   if(m.t === "hello"){
     const name = String(m.name || "?").trim().slice(0, 16) || "?";
-    G.players.set(pid, { pid, name, score:0, conn, alive:Date.now() });
+    G.players.set(pid, { pid, name, av:cleanAv(m.av), score:0, conn, alive:Date.now() });
     if(G.phase === "lobby") lobbyUpdate(); else sendTo(G.players.get(pid), { t:"wait" });
     if(G.phase !== "lobby") toast(name + " 님이 들어왔어요");
     return;
   }
+  if(m.t === "chat") return hostChat(pid, m.text);
+  if(m.t === "guess") return exGuess(pid, m.card);
+  if(m.t === "pass") return exPass(pid);
   if(m.t === "ans"){
     const c = G.cur;
     if(!p || !c || c.done || m.qn !== c.qn || c.answers[pid] || !c.opts.includes(m.pick)) return;
@@ -431,6 +634,10 @@ function dropPlayer(pid){
   G.players.delete(pid);
   try{ p.conn && p.conn.close(); }catch(e){}
   if(G.phase === "lobby") lobbyUpdate();
+  else if(G.mode === "explain" && G.ex && G.ex.phase === "play"){
+    broadcast({ t:"chat", kind:"sys", text:p.name + " 님이 나갔어요" });
+    if(pid === G.ex.explainer) exReveal(); else if(exAllDone()) { clearTimeout(G.timer); G.timer = setTimeout(exReveal, 600); } else exBroadcast();
+  }
   else if(G.cur && !G.cur.done && !G.cur.expect.some(x => G.players.has(x) && !G.cur.answers[x])){ clearTimeout(G.timer); G.timer = setTimeout(reveal, 350); }
 }
 
@@ -443,6 +650,7 @@ async function startGame(){
   G.label = nightText(G.nightIdx);
   G.miss = {}; G.tries = {}; G.cleared = 0; G.boardTotal = 0; G.board = []; G.qn = 0;
   for(const p of G.players.values()) p.score = 0;
+  if(G.mode === "explain" && !G.solo) return startExplain();
   G.stages = [{ round:1, dir:"k2m", list:shuffle(G.words) }, { round:2, dir:"m2k", list:shuffle(G.words) }];
   G.phase = "play";
   if(!G.solo && "wakeLock" in navigator){ try{ ME.wake = await navigator.wakeLock.request("screen"); }catch(e){} }
@@ -520,9 +728,11 @@ function reveal(){
   G.timer = setTimeout(() => { if(!G) return; c.round === 3 ? askBoard() : ask(); }, delay);
 }
 function finish(){
-  G.phase = "end"; G.cur = null;
+  G.phase = "end"; G.cur = null; G.ex = null; clearTimeout(G.timer);
+  const explain = G.mode === "explain" && !G.solo;
+  const used = explain ? G.played.map(x => x.card) : G.words;
   const hist = loadHist(), today = todayKST();
-  for(const id of G.words){
+  for(const id of used){
     const h = hist[id] || { m:0, s:0 };
     h.s++; h.d = today;
     h.m = G.miss[id] ? Math.min(9, h.m + G.miss[id]) : Math.max(0, h.m - 1);
@@ -530,9 +740,303 @@ function finish(){
   }
   store.set(HIST_KEY, JSON.stringify(hist));
   const hardest = Object.entries(G.miss).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const scores = [...G.players.values()].map(p => ({ pid:p.pid, name:p.name, score:p.score })).sort((a, b) => b.score - a.score);
+  const scores = [...G.players.values()].map(p => ({ pid:p.pid, name:p.name, av:p.av, score:p.score })).sort((a, b) => b.score - a.score);
   if(ME.wake){ try{ ME.wake.release(); }catch(e){} ME.wake = null; }
-  broadcast({ t:"end", label:G.label, words:G.words.length, cleared:G.cleared, boardTotal:G.boardTotal, hardest, scores });
+  broadcast({ t:"end", mode: explain ? "explain" : "quiz", label:G.label, words:used.length, cleared:G.cleared, boardTotal:G.boardTotal,
+              hardest, scores, played: explain ? G.played : [] });
+}
+
+/* ================================ chat ================================
+   Text goes to the host, the host checks it (length, speed, and in 설명왕 whether it gives away or guesses
+   the word) and sends it to everyone. Nothing is stored: when the room closes, the chat is gone. */
+let CHAT = [], chatUnread = 0;
+const QUICK = ["ㅋㅋㅋ", "👏", "헐", "아~", "힌트 더!", "몰라요 😅"];
+function chatInputHtml(id){
+  return '<div class="quick">' + QUICK.map(q => '<button data-q="' + esc(q) + '">' + esc(q) + '</button>').join("") + '</div>' +
+    '<form class="sendRow" id="' + id + '"><input maxlength="200" enterkeyhint="send" autocomplete="off" placeholder="메시지…"><button>보내기</button></form>';
+}
+function bindChatInput(root){
+  root.querySelectorAll(".quick button").forEach(b => b.onclick = () => sendChat(b.dataset.q));
+  const f = root.querySelector("form"), inp = f.querySelector("input");
+  f.onsubmit = e => { e.preventDefault(); const t = inp.value.trim(); if(!t) return; sendChat(t); inp.value = ""; inp.focus(); };
+}
+function msgHtml(m){
+  if(m.kind === "sys") return '<div class="msg sys">' + esc(m.text) + '</div>';
+  if(m.kind === "syshint") return '<div class="msg syshint" lang="ko">' + esc(m.text) + '</div>';
+  return '<div class="msg' + (m.kind === "hint" ? " hint" : "") + (m.pid === ME.pid ? " me" : "") + '">' + avHtml(m.av) + '<div><b>' +
+    (m.kind === "hint" ? "💡 " : "") + esc(m.name) + '</b><span lang="ko">' + esc(m.text) + '</span></div></div>';
+}
+function paintFeed(el){ if(!el) return; el.innerHTML = CHAT.map(msgHtml).join(""); el.scrollTop = el.scrollHeight; }
+function addChat(m){
+  CHAT.push(m); if(CHAT.length > 150) CHAT.shift();
+  for(const el of [$("#chatFeed"), $("#exFeed")]) if(el){
+    const near = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    el.insertAdjacentHTML("beforeend", msgHtml(m));
+    if(near || m.pid === ME.pid) el.scrollTop = el.scrollHeight;
+  }
+  const panelOpen = !$("#chatPanel").hidden, exOpen = document.body.classList.contains("exmode");
+  if(!panelOpen && !exOpen && m.kind !== "sys"){ chatUnread++; const b = $("#chatBadge"); b.textContent = chatUnread > 99 ? "99+" : chatUnread; b.hidden = false; }
+}
+function sendChat(text){
+  if(ME.host && G) hostChat("me", text);
+  else if(ME.conn && ME.conn.open) ME.conn.send({ t:"chat", text });
+}
+function setChatAvailable(on){ document.body.classList.toggle("nochat", !on); }
+function resetChat(){ CHAT = []; chatUnread = 0; $("#chatBadge").hidden = true; $("#chatPanel").hidden = true; $("#chatFeed").innerHTML = ""; setChatAvailable(false); }
+$("#chatIn").innerHTML = chatInputHtml("chatForm");
+bindChatInput($("#chatIn"));
+$("#chatFab").onclick = () => { $("#chatPanel").hidden = false; chatUnread = 0; $("#chatBadge").hidden = true; paintFeed($("#chatFeed")); $("#chatForm input").focus(); };
+$("#chatClose").onclick = () => { $("#chatPanel").hidden = true; };
+
+const norm = s => String(s || "").toLowerCase().replace(/[\s.,!?~·'"()\[\]\-…_/:;]+/g, "");
+/* does this text contain the word? also catches the stem, so 흐트러지 and 흐트러져 give away 흐트러지다 */
+function containsWord(text, id){
+  const t = norm(text), w = norm(C[id].kr);
+  if(!w) return false;
+  // one-syllable words (탈, 총, -편) would match inside almost anything, so they must stand alone
+  if(w.length === 1) return String(text).split(/\s+/).map(norm).includes(w);
+  if(t.includes(w)) return true;
+  if(w.length >= 3 && w.endsWith("다") && t.includes(w.slice(0, -1))) return true;
+  return false;
+}
+function hostChat(pid, raw){
+  const p = G && G.players.get(pid); if(!p) return;
+  const text = String(raw || "").replace(/\s+/g, " ").trim().slice(0, 200); if(!text) return;
+  const now = Date.now(); if(p.lastChat && now - p.lastChat < 500) return; p.lastChat = now;
+  const ex = G.ex;
+  if(G.phase === "play" && G.mode === "explain" && ex && ex.phase === "play"){
+    if(pid === ex.explainer){
+      if(containsWord(text, ex.card)){ sendTo(p, { t:"chat", kind:"sys", text:"✋ 단어를 직접 쓰면 안 돼요 · 다른 말로 설명하세요" }); return; }
+      return broadcast({ t:"chat", kind:"hint", pid, name:p.name, av:p.av, text });
+    }
+    if(ex.solved[pid] != null){
+      if(containsWord(text, ex.card)){ sendTo(p, { t:"chat", kind:"sys", text:"🤫 정답은 아직 비밀이에요" }); return; }
+    } else {
+      // a guess typed into the chat counts like a tap in the word list, and is never shown as text
+      if(containsWord(text, ex.card)) return exGuess(pid, ex.card);
+      const hit = G.words.find(id => norm(C[id].kr) === norm(text));
+      if(hit) return exGuess(pid, hit);
+      exSyllables(pid, text);
+    }
+  }
+  broadcast({ t:"chat", kind:"chat", pid, name:p.name, av:p.av, text });
+}
+
+/* ================================ 설명왕: host ================================ */
+function startExplain(){
+  if(G.players.size < 2){ toast("설명왕은 2명 이상 필요해요"); G.phase = "lobby"; return; }
+  const stars = shuffle(G.words.filter(id => C[id].star)), rest = shuffle(G.words.filter(id => !C[id].star));
+  G.exQueue = stars.concat(rest);
+  G.turns = Math.min(G.words.length, G.players.size * G.exRounds);
+  G.turn = 0; G.played = []; G.ex = null;
+  G.phase = "play";
+  broadcast({ t:"round", round:"ex" });
+  G.timer = setTimeout(exNextTurn, 6000);
+}
+function exNextTurn(){
+  if(!G) return;
+  if(G.turn >= G.turns || !G.exQueue.length || G.players.size < 2) return finish();
+  const order = [...G.players.keys()];
+  const explainer = order[G.turn % order.length];
+  G.turn++;
+  G.ex = { phase:"play", n:G.turn, card:G.exQueue.shift(), explainer, endAt:Date.now() + EX_MS, start:Date.now(), solved:{}, wrong:{}, passed:false,
+           found:{}, hintTimers:[] };
+  broadcast({ t:"chat", kind:"sys", text:"— " + G.turn + "번째 단어 · 설명: " + G.players.get(explainer).name + " —" });
+  exScheduleHints();
+  exBroadcast();
+  clearTimeout(G.timer);
+  G.timer = setTimeout(exReveal, EX_MS + 300);
+}
+/* The system helps the guessers as time passes, from vague to specific:
+   10 s the example with the word hidden, 20 s how many syllables, 35 s part of speech or where it came from,
+   55 s the first syllable. Restarted when the explainer passes, so hints always belong to the current word. */
+function exScheduleHints(){
+  const ex = G.ex; if(!ex) return;
+  ex.hintTimers.forEach(clearTimeout); ex.hintTimers = [];
+  const card = ex.card, s = sylls(card), shape = C[card].kr.replace(/[가-힣]/g, "○");
+  const masked = maskedExample(card);
+  const steps = [];
+  if(masked) steps.push([10000, "💡 예문: " + masked]);
+  else if(posKo(card)) steps.push([10000, "💡 품사: " + posKo(card)]);
+  steps.push([20000, "💡 " + s.length + "글자예요: " + shape]);
+  steps.push([35000, masked && posKo(card) ? "💡 품사: " + posKo(card) : "💡 나온 곳: " + placeKo(card)]);
+  if(s.length >= 2) steps.push([55000, "💡 첫 글자: " + s[0] + " " + "○".repeat(s.length - 1)]);
+  for(const [at, text] of steps) ex.hintTimers.push(setTimeout(() => {
+    if(G && G.ex === ex && ex.phase === "play" && ex.card === card) broadcast({ t:"chat", kind:"syshint", text });
+  }, at - (Date.now() - ex.start)));
+}
+/* A syllable a guesser typed in the right place (counted from the start or from the end) is revealed to
+   that guesser only: 떠들다 against 떠들썩하다 shows 떠들○○다. */
+function exSyllables(pid, text){
+  const ex = G.ex, p = G.players.get(pid); if(!ex || !p) return;
+  const w = sylls(ex.card); if(!w.length) return;
+  const found = ex.found[pid] = ex.found[pid] || [];
+  let added = false;
+  const tokens = String(text).split(/\s+/).map(t => [...t.replace(/[^가-힣]/g, "")]).filter(t => t.length);
+  tokens.push([...String(text).replace(/[^가-힣]/g, "")]);
+  for(const t of tokens){
+    for(let i = 0; i < Math.min(t.length, w.length); i++) if(t[i] === w[i] && !found.includes(i)){ found.push(i); added = true; }
+    for(let j = 1; j <= Math.min(t.length, w.length); j++){ const i = w.length - j; if(t[t.length - j] === w[i] && !found.includes(i)){ found.push(i); added = true; } }
+  }
+  if(added && found.length >= w.length) found.pop();     // never hand over the whole word this way
+  if(added) exBroadcast();
+}
+function exMask(pid){
+  const ex = G.ex, w = sylls(ex.card), f = ex.found[pid] || [];
+  return f.length ? w.map((ch, i) => f.includes(i) ? ch : "○").join("") : "";
+}
+function exBroadcast(){
+  const ex = G.ex; if(!ex) return;
+  const e = G.players.get(ex.explainer);
+  const solvedNames = Object.keys(ex.solved).map(pid => G.players.get(pid) ? G.players.get(pid).name : "?");
+  for(const p of G.players.values()) sendTo(p, {
+    t:"ex", n:ex.n, of:G.turns, explainer:ex.explainer, explainerName:e ? e.name : "?", ms:Math.max(0, ex.endAt - Date.now()),
+    words:G.words, done:G.played.map(x => x.card), secret: p.pid === ex.explainer ? ex.card : null, passed:ex.passed,
+    solvedNames, iSolved: ex.solved[p.pid] != null, wrongLeft: EX_WRONG - (ex.wrong[p.pid] || 0),
+    mask: p.pid === ex.explainer ? "" : exMask(p.pid)
+  });
+}
+function exAllDone(){
+  const ex = G.ex;
+  const guessers = [...G.players.keys()].filter(x => x !== ex.explainer);
+  return guessers.length > 0 && guessers.every(x => ex.solved[x] != null || (ex.wrong[x] || 0) >= EX_WRONG);
+}
+function exGuess(pid, id){
+  const ex = G && G.ex, p = G && G.players.get(pid);
+  if(!ex || ex.phase !== "play" || !p || pid === ex.explainer || ex.solved[pid] != null || !C[id]) return;
+  if((ex.wrong[pid] || 0) >= EX_WRONG){ sendTo(p, { t:"chat", kind:"sys", text:"이번 단어는 기회를 다 썼어요" }); return; }
+  if(id === ex.card){
+    const first = Object.keys(ex.solved).length === 0;
+    const pts = first ? 100 + Math.round(100 * Math.max(0, (ex.endAt - Date.now()) / EX_MS)) : 60;
+    ex.solved[pid] = pts; p.score += pts;
+    const e = G.players.get(ex.explainer); if(e) e.score += 50;      // the explainer earns for every classmate who gets it
+    broadcast({ t:"chat", kind:"sys", text:"✓ " + p.name + " 님이 맞혔어요! +" + pts });
+    sendTo(p, { t:"exYou", pts, card:id });
+  } else {
+    ex.wrong[pid] = (ex.wrong[pid] || 0) + 1;
+    broadcast({ t:"chat", kind:"sys", text:"✗ " + p.name + ": " + C[id].kr });
+    exSyllables(pid, C[id].kr);
+  }
+  if(exAllDone()){ clearTimeout(G.timer); G.timer = setTimeout(exReveal, 900); }
+  else exBroadcast();
+}
+function exPass(pid){
+  const ex = G && G.ex;
+  if(!ex || ex.phase !== "play" || pid !== ex.explainer || ex.passed || !G.exQueue.length || Object.keys(ex.solved).length) return;
+  G.exQueue.push(ex.card);
+  ex.card = G.exQueue.shift(); ex.passed = true; ex.wrong = {}; ex.found = {};
+  broadcast({ t:"chat", kind:"sys", text:"⏭ 패스! 새 단어예요 · 힌트도 새로 시작해요" });
+  ex.start = Date.now();
+  exScheduleHints();
+  exBroadcast();
+}
+function exReveal(){
+  const ex = G && G.ex; if(!ex || ex.phase !== "play") return;
+  ex.phase = "reveal"; clearTimeout(G.timer); ex.hintTimers.forEach(clearTimeout);
+  const solved = Object.entries(ex.solved).map(([pid, pts]) => ({ name: G.players.get(pid) ? G.players.get(pid).name : "?", pts }));
+  if(!solved.length) G.miss[ex.card] = (G.miss[ex.card] || 0) + 1;
+  const e = G.players.get(ex.explainer);
+  G.played.push({ card:ex.card, by: e ? e.name : "?", ok: solved.length > 0 });
+  broadcast({ t:"exReveal", n:ex.n, of:G.turns, card:ex.card, by: e ? e.name : "?", solved,
+              scores:[...G.players.values()].map(p => ({ pid:p.pid, name:p.name, av:p.av, score:p.score })).sort((a, b) => b.score - a.score) });
+  G.timer = setTimeout(exNextTurn, EX_REVEAL_MS);
+}
+
+/* ================================ 설명왕: screens ================================
+   The play screen is built once per word and then only updated in place, so a half-typed hint or a
+   guess being picked is never wiped by someone else's move. */
+let EXV = null;
+function renderEx(m){
+  document.body.classList.add("exmode");
+  setChatAvailable(true);
+  $("#chatPanel").hidden = true;
+  const me = m.explainer === ME.pid;
+  if(!EXV || EXV.n !== m.n || EXV.secret !== m.secret || !$("#exFeed")){
+    const keepDraft = EXV && $("#exForm input") ? $("#exForm input").value : "";
+    EXV = { n:m.n, secret:m.secret, pick:null, m };
+    $("#app").innerHTML =
+      '<div class="exTop"><span class="who">' + m.n + ' / ' + m.of + ' · 💡 <b>' + esc(m.explainerName) + '</b>' + (me ? " (나)" : "") + '</span>' +
+      '<span class="clock" id="exClock"></span><button class="mini" id="exListBtn">단어 목록</button></div>' +
+      '<div class="bar"><i id="exBar" style="animation-duration:' + m.ms + 'ms"></i></div>' +
+      (me ? '<div class="card secret"><div class="note">내 단어 · 친구들에게 한국어로 설명하세요</div><div class="kr" lang="ko">' + esc(C[m.secret].kr) +
+            (C[m.secret].star ? ' <span class="star">★</span>' : '') + '</div>' +
+            '<div class="mean" lang="' + hl(LANG) + '">' + esc(full(m.secret)) + '</div>' + (C[m.secret].ex ? '<div class="ex" lang="ko">예: ' + esc(C[m.secret].ex) + '</div>' : '') +
+            '<div class="facts" lang="ko">' + [posKo(m.secret) && "품사: " + posKo(m.secret), sylls(m.secret).length + "글자", placeKo(m.secret) && "나온 곳: " + placeKo(m.secret)]
+              .filter(Boolean).map(f => '<span>' + esc(f) + '</span>').join("") + '</div>' +
+            '<div class="starters" lang="ko">' + explainStarters(m.secret).map(s => '<button data-s="' + esc(s) + '">' + esc(s) + '</button>').join("") + '</div>' +
+            '<button class="mini" id="exPass" style="margin-top:8px">패스 (한 번만)</button></div>' : '') +
+      '<p class="exStatus" id="exStatus"></p>' +
+      '<div class="exBox"><div class="feed" id="exFeed"></div><div class="chatIn" id="exIn">' + chatInputHtml("exForm") + '</div></div>';
+    bindChatInput($("#exIn"));
+    if(keepDraft) $("#exForm input").value = keepDraft;
+    if(me) $("#exForm input").placeholder = "힌트를 쓰세요 (단어는 쓰지 마세요)";
+    else $("#exForm input").placeholder = "대화하거나 단어를 쓰면 정답 도전!";
+    paintFeed($("#exFeed"));
+    $("#exListBtn").onclick = () => openWordSheet();
+    const ps = $("#exPass"); if(ps) ps.onclick = () => { if(ME.host) exPass("me"); else ME.conn && ME.conn.send({ t:"pass" }); };
+    // a starter goes into the input to be finished, never straight to the chat
+    document.querySelectorAll(".starters button").forEach(b => b.onclick = () => {
+      const inp = $("#exForm input"); inp.value = b.dataset.s; inp.focus();
+      const at = inp.value.indexOf("…"); if(at >= 0) inp.setSelectionRange(at, at + 1);
+    });
+    clearInterval(renderEx.clock);
+    renderEx.clock = setInterval(() => { const c = $("#exClock"); if(!c || !EXV){ clearInterval(renderEx.clock); return; }
+      c.textContent = Math.max(0, Math.ceil((EXV.endAt - Date.now()) / 1000)) + "s"; }, 250);
+  }
+  EXV.m = m; EXV.endAt = Date.now() + m.ms;
+  const ps = $("#exPass"); if(ps) ps.disabled = m.passed || m.solvedNames.length > 0;
+  const st = $("#exStatus");
+  if(me) st.textContent = m.solvedNames.length ? "맞힌 사람: " + m.solvedNames.join(", ") + " · 계속 설명하세요!" : "아직 아무도 못 맞혔어요 · 쉬운 말로 설명해 보세요";
+  else if(m.iSolved) st.textContent = "✓ 맞혔어요! 다른 사람을 기다리는 중… (정답은 채팅에 쓰지 마세요)";
+  else if(m.wrongLeft <= 0) st.textContent = "기회를 다 썼어요 · 정답은 곧 나와요";
+  else st.innerHTML = (m.mask ? '내가 찾은 글자 <span class="mask" lang="ko">' + esc(m.mask) + '</span><br>' : '') +
+    "힌트를 읽고 오른쪽 위 단어 목록에서 고르세요 · 남은 기회 " + m.wrongLeft + "번" + (m.solvedNames.length ? " · 맞힌 사람: " + esc(m.solvedNames.join(", ")) : "");
+  if($("#wordSheet")) openWordSheet(true);
+}
+/* sentence starters for the explainer, fitted to the kind of word; "…" is where they continue */
+function explainStarters(id){
+  const pos = C[id].pos, out = [];
+  if(posKo(id)) out.push(posKo(id) + "예요.");
+  if(pos === "verb") out.push("…할 때 이 말을 해요.", "사람이 …하는 거예요.");
+  else if(pos === "adjective") out.push("…한 느낌이에요.", "…할 때 이렇게 말해요.");
+  else if(pos === "noun") out.push("…에 있는 거예요.", "…할 때 필요한 거예요.");
+  else if(pos === "adverb") out.push("… 정도로 하는 거예요.");
+  else out.push("…한 상황에서 써요.");
+  out.push("비슷한 말은 …예요.", "반대말은 …예요.", sylls(id).length + "글자예요.", "이 단어는 " + placeKo(id) + "에 나왔어요.");
+  return out;
+}
+function openWordSheet(refresh){
+  if(!EXV) return;
+  const m = EXV.m, me = m.explainer === ME.pid, canGuess = !me && !m.iSolved && m.wrongLeft > 0;
+  let sh = $("#wordSheet");
+  if(!sh){ if(refresh) return; sh = document.createElement("div"); sh.id = "wordSheet"; sh.className = "sheet"; document.body.appendChild(sh);
+    sh.onclick = e => { if(e.target === sh) sh.remove(); }; }
+  const done = new Set(m.done);
+  sh.innerHTML = '<div class="inner"><header><span>단어 목록 · ' + m.words.length + '</span><button class="mini" id="wsClose">닫기</button></header>' +
+    '<div class="chips">' + m.words.map(id => '<button class="wchip' + (EXV.pick === id ? " sel" : "") + '" data-id="' + id + '" lang="ko"' +
+      (done.has(id) || !canGuess ? " disabled" : "") + '>' + esc(C[id].kr) + '</button>').join("") + '</div>' +
+    '<div class="foot">' + (canGuess ? '<button class="btn gold" id="wsGo" style="margin:0"' + (EXV.pick ? "" : " disabled") + '>' +
+      (EXV.pick ? esc(C[EXV.pick].kr) + " · 이 단어로 맞히기" : "단어를 고르세요") + '</button>'
+      : '<p class="note" style="margin:0">' + (me ? "설명하는 사람은 목록을 보기만 해요." : "이번 단어는 더 고를 수 없어요.") + '</p>') + '</div></div>';
+  $("#wsClose").onclick = () => sh.remove();
+  sh.querySelectorAll(".wchip").forEach(b => b.onclick = () => { EXV.pick = b.dataset.id; openWordSheet(true); });
+  const go = $("#wsGo");
+  if(go) go.onclick = () => { const id = EXV.pick; if(!id) return; EXV.pick = null; sh.remove();
+    if(ME.host) exGuess("me", id); else ME.conn && ME.conn.send({ t:"guess", card:id }); };
+}
+function renderExReveal(m){
+  const sh = $("#wordSheet"); if(sh) sh.remove();
+  document.body.classList.remove("exmode");
+  EXV = null;
+  const c = C[m.card];
+  $("#app").innerHTML = '<div class="top"><span>설명왕 · ' + m.n + ' / ' + m.of + '</span><span>다음 단어까지 잠시…</span></div>' +
+    '<div class="card" style="text-align:center"><div class="note">정답 · 설명: ' + esc(m.by) + '</div>' +
+    '<div class="prompt" lang="ko" style="padding:10px 0 6px">' + esc(c.kr) + (c.star ? ' <span class="star">★</span>' : '') + '</div>' +
+    '<div class="full" lang="' + hl(LANG) + '" style="margin-top:0;font-size:17px">' + esc(full(m.card)) + '</div>' +
+    (c.ex ? '<div class="full"><div class="ex" lang="ko">' + esc(c.ex) + '</div></div>' : '') + '</div>' +
+    '<div class="banner ' + (m.solved.length ? "o" : "x") + '">' + (m.solved.length ? "✓ " + m.solved.map(s => esc(s.name)).join(", ") : "아무도 못 맞혔어요 · 이 단어는 다음에 또 나와요") + '</div>' +
+    '<div class="card" style="margin-top:14px"><h2>점수</h2><table>' + m.scores.map(p => '<tr><td>' + avHtml(p.av) + esc(p.name) + (p.pid === ME.pid ? " (나)" : "") +
+      '</td><td class="s">' + p.score + '</td></tr>').join("") + '</table></div>';
 }
 
 document.addEventListener("visibilitychange", () => {
