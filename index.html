@@ -62,6 +62,13 @@
   /* collapsed: the chapter rows fold away, the summary line in the header stays */
   .picker.collapsed .chev{transform:rotate(-90deg)}
   .picker.collapsed #chapters{display:none}
+  /* ---- games: a second fold under the picker, closed by default so it never gets in the way ---- */
+  .picker.collapsed #gamelinks{display:none}
+  .glinks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;padding:4px 0 8px}
+  .glink{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--txt);text-decoration:none}
+  .glink:hover{border-color:var(--accent)}
+  .glink b{font-size:15px}
+  .glink span{font-size:12px;color:var(--dim);line-height:1.4}
   .picker.collapsed .pickhdr{margin-bottom:0}
   .picker.collapsed{padding-bottom:8px}
   .chrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:5px 0}
@@ -186,6 +193,17 @@
     <span class="cnt" id="selcnt"></span>
   </div>
   <div id="chapters"></div>
+</div>
+
+<div class="picker collapsed" id="games">
+  <div class="pickhdr" id="gamesHdr" role="button" tabindex="0" aria-controls="gamelinks" aria-expanded="false">
+    <span class="chev" aria-hidden="true">▼</span>
+    <span class="t">🎮 같이 하는 게임 · Games</span>
+  </div>
+  <div id="gamelinks" class="glinks">
+    <a class="glink" href="together.html"><b>같이 외우기</b><span>다음 수업 단어를 같이 외워요 · 단어 퀴즈 · 설명왕</span></a>
+    <a class="glink" href="bar.html"><b>단어 바</b><span>팀으로 복습하는 가게 게임 · 중요 단어 · 3–4과</span></a>
+  </div>
 </div>
 
 <main>
@@ -343,6 +361,16 @@ $("#pickHdr").onclick=e=>{ if(e.target.closest("button"))return;   // All / None
   setPicker($("#picker").classList.contains("collapsed"),true); };
 $("#pickHdr").onkeydown=e=>{ if(e.key===" "||e.key==="Enter"){e.preventDefault();
   setPicker($("#picker").classList.contains("collapsed"),true);} };
+
+/* ---------- games fold (closed unless the reader opened it before) ---------- */
+function setGames(open,save){
+  $("#games").classList.toggle("collapsed",!open);
+  $("#gamesHdr").setAttribute("aria-expanded",open?"true":"false");
+  if(save)store.set("k5a_gamesopen",open?"1":"0");
+}
+$("#gamesHdr").onclick=()=>setGames($("#games").classList.contains("collapsed"),true);
+$("#gamesHdr").onkeydown=e=>{ if(e.key===" "||e.key==="Enter"){e.preventDefault();setGames($("#games").classList.contains("collapsed"),true);} };
+setGames(store.get("k5a_gamesopen")==="1",false);
 
 /* ---------- filtering ---------- */
 function filtered(){
