@@ -144,7 +144,9 @@
   /* ---- 설명왕 extras ---- */
   .facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .facts span{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:12.5px}
-  .starters{display:flex;gap:6px;overflow-x:auto;margin-top:8px}
+  .starters{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .quick::-webkit-scrollbar{display:none}
+  .quick{scrollbar-width:none}
   .starters button{flex:0 0 auto;background:rgba(255,207,92,.1);border:1px solid rgba(255,207,92,.4);color:var(--gold);border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer}
   .mask{font-size:22px;letter-spacing:.18em;font-weight:800;color:var(--gold)}
   .pop{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);background:var(--good);color:#06291a;font-size:26px;font-weight:800;
@@ -489,8 +491,25 @@ function renderMessage(title, text, back){
   const b = $("#back"); if(b) b.onclick = leave;
 }
 
-/* everything a screen receives, from the host over the network or from the host's own engine */
+/* Korean typing: while a syllable is being composed (ㅇ → 아 → 안), any change to the page makes the
+   Windows/Chrome IME commit the half-built syllable, so 안녕 came out as ㅇㅏㄴㄴㅕㅇ. So while composing,
+   incoming messages wait and are applied the moment the syllable is finished. The last syllable of a word
+   stays "composing" while you think, so the wait is capped at 6 s: a new question must still arrive. */
+const IME = { on:false, q:[], t:null };
+function imeFlush(){
+  clearTimeout(IME.t); IME.t = null;
+  const q = IME.q; IME.q = [];
+  for(const m of q) handleMessage(m);
+}
+document.addEventListener("compositionstart", () => { IME.on = true; clearTimeout(IME.t); IME.t = setTimeout(() => { IME.on = false; imeFlush(); }, 6000); }, true);
+document.addEventListener("compositionend", () => { IME.on = false; setTimeout(() => { if(!IME.on) imeFlush(); }, 0); }, true);
 function onMessage(m){
+  if(IME.on){ IME.q.push(m); return; }
+  handleMessage(m);
+}
+
+/* everything a screen receives, from the host over the network or from the host's own engine */
+function handleMessage(m){
   if(m.t !== "chat" && m.t !== "ex" && m.t !== "exYou") document.body.classList.remove("exmode");
   if(["lobby","wait","round","q","reveal","end","ex","exReveal"].includes(m.t)) setChatAvailable(!(ME.host && G && G.solo));
   if(m.t === "chat") addChat(m);
@@ -758,7 +777,11 @@ function chatInputHtml(id){
 function bindChatInput(root){
   root.querySelectorAll(".quick button").forEach(b => b.onclick = () => sendChat(b.dataset.q));
   const f = root.querySelector("form"), inp = f.querySelector("input");
-  f.onsubmit = e => { e.preventDefault(); const t = inp.value.trim(); if(!t) return; sendChat(t); inp.value = ""; inp.focus(); };
+  f.onsubmit = e => {
+    e.preventDefault(); const t = inp.value.trim(); if(!t) return; sendChat(t); inp.value = ""; inp.focus();
+    // Enter can commit the last Hangul syllable a moment after submit; don't leave it behind in the box
+    setTimeout(() => { if([...inp.value].length <= 1) inp.value = ""; }, 40);
+  };
 }
 function msgHtml(m){
   if(m.kind === "sys") return '<div class="msg sys">' + esc(m.text) + '</div>';
@@ -981,7 +1004,9 @@ function renderEx(m){
     });
     clearInterval(renderEx.clock);
     renderEx.clock = setInterval(() => { const c = $("#exClock"); if(!c || !EXV){ clearInterval(renderEx.clock); return; }
-      c.textContent = Math.max(0, Math.ceil((EXV.endAt - Date.now()) / 1000)) + "s"; }, 250);
+      if(IME.on) return;                                   // never touch the page mid-syllable (see IME below)
+      const s = Math.max(0, Math.ceil((EXV.endAt - Date.now()) / 1000)) + "s";
+      if(c.textContent !== s) c.textContent = s; }, 250);
   }
   EXV.m = m; EXV.endAt = Date.now() + m.ms;
   const ps = $("#exPass"); if(ps) ps.disabled = m.passed || m.solvedNames.length > 0;
