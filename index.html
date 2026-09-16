@@ -41,9 +41,32 @@
   .titlebar{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
   h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px}
   .sub{color:var(--dim);font-size:13px}
-  .langsw{margin-left:auto;display:flex;gap:4px}
+  .langsw{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
   .langsw button{padding:5px 9px;font-size:12px;border-radius:8px}
+  /* folded language switch: only the current language shows, tapping it opens the rest */
+  .langsw.folded button:not(.active){display:none}
+  .langsw.folded button.active::after{content:" ▾";opacity:.8}
   .controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+  /* ---- collapsing header: the ⌃ button folds everything but the title line away ---- */
+  .hdrtog{margin-left:6px;align-self:center;background:var(--card);border:1px solid var(--line);color:var(--dim);
+    font-size:13px;line-height:1;padding:6px 8px;cursor:pointer;border-radius:8px}
+  .hdrtog:hover{color:var(--txt);background:var(--card)}
+  header.slim{padding:6px 16px}
+  header.slim .sub,header.slim .langsw,header.slim .controls{display:none}
+  header.slim .hdrtog{transform:rotate(180deg)}
+  header.slim h1{font-size:16px}
+  @media (max-width:640px){
+    header{padding:9px 12px 8px}
+    /* one tight title line: the word count goes, the title truncates, nothing wraps */
+    .titlebar{flex-wrap:nowrap;align-items:center}
+    .sub{display:none}
+    h1{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .controls{margin-top:8px;gap:6px}
+    .btn{padding:7px 10px;font-size:13px}
+    .search{padding:7px 10px;font-size:14px;min-width:120px}
+    main{padding:10px 12px 40px}
+    .picker{padding:8px 12px 4px}
+  }
   .search{
     flex:1;min-width:160px;background:var(--bg2);border:1px solid var(--line);
     color:var(--txt);border-radius:10px;padding:9px 12px;font-size:15px;outline:none;
@@ -178,6 +201,7 @@
     <h1>Korean 5A — <span data-i="vocab">Vocabulary</span></h1>
     <span class="sub" id="totsub"></span>
     <div class="langsw" id="langsw"></div>
+    <button class="hdrtog" id="hdrTog" aria-controls="hdr" aria-expanded="true" title="Hide/show the controls">⌃</button>
   </div>
   <div class="controls">
     <input class="search" id="search" data-i="search" placeholder="Search…">
@@ -309,6 +333,8 @@ try{const k=JSON.parse(store.get("k5a_known")||"[]");k.forEach(x=>state.known.ad
 try{const s=JSON.parse(store.get("k5a_sel")||"null");if(Array.isArray(s)&&s.length){state.sel=new Set(s.filter(id=>SECTIONS.some(x=>x.id===id)));}}catch(e){}
 
 const $=s=>document.querySelector(s);
+const isNarrow=()=>window.matchMedia("(max-width:640px)").matches;
+let langFolded=isNarrow();          // phones open with just the current language, not all six
 const T=k=>(I18N[state.lang]||I18N.en)[k]||I18N.en[k]||k;
 const trOf=c=>(c.tr&&c.tr[state.lang])||"";
 function esc(s){return String(s).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]));}
@@ -321,9 +347,13 @@ function applyLang(code,save){
     const k=el.dataset.i;
     if(el.tagName==="INPUT")el.placeholder=T(k); else el.textContent=(k==="reveal"&&state.revealAll)?T("hide"):T(k);
   });
-  const sw=$("#langsw");sw.innerHTML="";
+  const sw=$("#langsw");sw.innerHTML="";sw.classList.toggle("folded",langFolded);
   DATA.languages.forEach(l=>{const b=document.createElement("button");b.className="btn"+(l.code===code?" active":"");
-    b.textContent=l.short||l.native;b.setAttribute("lang",htmlLang(l.code));b.onclick=()=>{applyLang(l.code,true);render();};sw.appendChild(b);});
+    b.textContent=l.short||l.native;b.setAttribute("lang",htmlLang(l.code));
+    // folded (the default on a phone): only the current language shows and tapping it opens the row
+    b.onclick=()=>{ if(langFolded&&l.code===code){langFolded=false;sw.classList.remove("folded");return;}
+      langFolded=isNarrow();applyLang(l.code,true);render(); };
+    sw.appendChild(b);});
   $("#totsub").textContent=ALL.length+" "+T("words")+" · "+SECTIONS.length+" "+T("sections");
   $("#langpick").hidden=true;
 }
@@ -384,6 +414,15 @@ function setGames(open,save){
 $("#gamesHdr").onclick=()=>setGames($("#games").classList.contains("collapsed"),true);
 $("#gamesHdr").onkeydown=e=>{ if(e.key===" "||e.key==="Enter"){e.preventDefault();setGames($("#games").classList.contains("collapsed"),true);} };
 setGames(store.get("k5a_gamesopen")==="1",false);
+
+/* ---------- header fold: on a phone the title + search + buttons ate half the screen ---------- */
+function setHeader(open,save){
+  document.querySelector("header").classList.toggle("slim",!open);
+  $("#hdrTog").setAttribute("aria-expanded",open?"true":"false");
+  if(save)store.set("k5a_hdropen",open?"1":"0");
+}
+$("#hdrTog").onclick=()=>setHeader(document.querySelector("header").classList.contains("slim"),true);
+setHeader(store.get("k5a_hdropen")!=="0",false);
 
 /* ---------- filtering ---------- */
 function filtered(){
