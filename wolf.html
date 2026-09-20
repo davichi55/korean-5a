@@ -640,14 +640,21 @@ function drawLabels(){
 }
 function drawPrompt(L){
   const fs0 = clamp(Math.min(W, H) * .055, 16, 32), maxW = W * .94;
-  const y = H - Math.max(H * .055, 34);
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
   let fs = fs0, tw;
   for (;;) { ctx.font = fs + 'px "Jua", sans-serif'; tw = ctx.measureText(G.prompt).width; if (tw + fs * 1.4 <= maxW || fs <= 12) break; fs -= 1; }
   const w = Math.min(tw + fs * 1.4, maxW), h = fs0 * 1.9;
+  // it floats just above the four words, so the eye never leaves that band
+  const top = G.labels.reduce((m, l) => l.box ? Math.min(m, l.box.y) : m, H);
+  const y = clamp(top - h * .95, h * .8, H * .55);
   const p = new Path2D(); p.roundRect(W / 2 - w / 2, y - h / 2, w, h, h * .4);
-  ctx.fillStyle = "rgba(10,1,7,.88)"; ctx.fill(p); ctx.strokeStyle = "#5e0a48"; ctx.lineWidth = 2; ctx.stroke(p);
-  ctx.fillStyle = "#ffd9ef"; ctx.fillText(G.prompt, W / 2, y + 1);
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,.85)"; ctx.shadowBlur = 18;           // it has to read against the trees
+  ctx.fillStyle = "rgba(10,1,7,.8)"; ctx.fill(p); ctx.shadowBlur = 0;
+  ctx.strokeStyle = "#a01b7c"; ctx.lineWidth = 2.5; ctx.stroke(p);
+  ctx.fillStyle = "#fff0fb"; ctx.font = fs + 'px "Jua", sans-serif';
+  ctx.fillText(G.prompt, W / 2, y + 1);
+  ctx.restore();
 }
 function drawFamily(x, y, s, lively){
   const fur = "#2c1226", furL = "#472039";
