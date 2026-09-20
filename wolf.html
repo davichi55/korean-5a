@@ -161,6 +161,22 @@ function sfxKill(){            // the most important sound in the game (answer 3
   const s = ac.createOscillator(); s.type = "triangle"; s.frequency.setValueAtTime(760, t); s.frequency.exponentialRampToValueAtTime(150, t + .1); // squelch
   env(s, t, .002, .1, .18).connect(ac.destination); s.start(t); s.stop(t + .16);
 }
+function sfxLaser(){
+  if (settings.mute) return; const ac = actx(), t = ac.currentTime;
+  const o = ac.createOscillator(); o.type = "sawtooth";
+  o.frequency.setValueAtTime(1800, t); o.frequency.exponentialRampToValueAtTime(240, t + .12);
+  const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.setValueAtTime(4000, t); lp.frequency.exponentialRampToValueAtTime(700, t + .12);
+  o.connect(lp); env(lp, t, .002, .13, .22).connect(ac.destination); o.start(t); o.stop(t + .2);
+}
+function sfxCoins(streak){
+  if (settings.mute) return; const ac = actx();
+  const n = 4 + Math.min(streak, 6);
+  for (let i = 0; i < n; i++) {
+    const t = ac.currentTime + .09 + i * .055;
+    const o = ac.createOscillator(); o.type = "square"; o.frequency.setValueAtTime(1319 * (1 + (i % 3) * .12), t);
+    env(o, t, .002, .09, .045).connect(ac.destination); o.start(t); o.stop(t + .14);
+  }
+}
 function sfxClank(){           // two metal pipes hitting each other (answer 18)
   if (settings.mute) return; const ac = actx(), t = ac.currentTime;
   for (const [f, d, v] of [[523, .5, .16], [784, .34, .1], [1170, .22, .07], [1560, .16, .05]]) {
@@ -309,37 +325,94 @@ function drawBeast(b, s, t){
   ctx.restore();
 }
 
-/* ============================== the wolf (seen from behind) ============================== */
-function drawWolf(s, t, lunge, jaw){
-  // lunge: 0..1 how far into a bite we are; jaw: 0..1 how open the mouth is
-  const bob = Math.sin(t * 6) * .01 * s * (1 - lunge);
-  ctx.save(); ctx.translate(0, bob);
-  const fur = "#3b1c35", furL = "#553050", rim = "#ff7ad8";
-  const stretch = 1 + lunge * .25;
-  ctx.save(); ctx.scale(1, 1 / (1 + lunge * .1));
-  fill(ell(0, -.3 * s, .34 * s * stretch, .3 * s), fur);                 // rump / body
-  fill(ell(-.22 * s, -.36 * s, .12 * s, .2 * s), furL);                  // hind legs
-  fill(ell(.22 * s, -.36 * s, .12 * s, .2 * s), furL);
-  ctx.save(); ctx.translate(0, -.1 * s); ctx.rotate(-.5 + Math.sin(t * 5) * .12);
-  fill(ell(0, -.2 * s, .08 * s, .26 * s), furL); ctx.restore();          // tail
-  fill(ell(0, -.62 * s, .27 * s, .24 * s), fur);                         // shoulders
-  fill(ell(0, -.86 * s, .2 * s, .17 * s), fur);                          // head from behind
-  for (const d of [-1, 1]) { fill(poly([[d * .1 * s, -.98 * s], [d * .2 * s, -1.22 * s], [d * .22 * s, -.92 * s]]), fur);
-    fill(poly([[d * .12 * s, -1 * s], [d * .18 * s, -1.16 * s], [d * .19 * s, -.96 * s]]), "#5a2b4e"); }   // ears
-  ctx.strokeStyle = rim; ctx.lineWidth = .025 * s; ctx.globalAlpha = .75;   // magenta rim light
-  ctx.beginPath(); ctx.ellipse(0, -.62 * s, .27 * s, .24 * s, 0, 3.3, 6.1); ctx.stroke(); ctx.globalAlpha = 1;
-  if (jaw > 0) {                                                          // jaws, seen past the head
-    const o = jaw * .16 * s;
-    fill(poly([[-.16 * s, -.9 * s], [.16 * s, -.9 * s], [.1 * s, -.9 * s - o], [-.1 * s, -.9 * s - o]]), "#160510");
-    ctx.fillStyle = "#fff4ea";
-    for (let i = 0; i < 4; i++) { const x = (-.1 + i * .066) * s; ctx.fillRect(x, -.9 * s - o, .018 * s, .035 * s); ctx.fillRect(x, -.875 * s, .018 * s, .03 * s); }
+/* ============================== the werewolf (seen from behind) ============================== */
+// fire: 0..1 through the shot (recoil + muzzle flash). Returns nothing; MUZZLE holds where the barrel ends.
+const MUZZLE = { x: 0, y: 0 };
+function drawWolf(s, t, fire, aimX){
+  const fur = "#4d2846", furL = "#6b3d63", dark = "#2e1529", rim = "#ff7ad8", steel = "#3a3a4a";
+  const breathe = Math.sin(t * 3) * .012 * s;
+  const kick = fire > 0 ? Math.sin(fire * Math.PI) : 0;          // the whole body jolts with the shot
+  const lean = clamp((aimX || 0) * .12, -.12, .12);
+  ctx.save(); ctx.translate(kick * s * .04, breathe + kick * s * .05); ctx.rotate(lean * .3);
+  // legs
+  fill(ell(-.16 * s, -.26 * s, .12 * s, .27 * s), dark);
+  fill(ell(.16 * s, -.26 * s, .12 * s, .27 * s), dark);
+  // tail
+  ctx.save(); ctx.translate(0, -.34 * s); ctx.rotate(.5 + Math.sin(t * 4) * .15);
+  fill(ell(0, .2 * s, .07 * s, .24 * s), furL); ctx.restore();
+  // torso + hunched shoulders
+  fill(ell(0, -.66 * s, .3 * s, .34 * s), fur);
+  fill(ell(0, -.95 * s, .36 * s, .2 * s), furL);
+  for (const d of [-1, 1]) fill(poly([[d * .12 * s, -1.06 * s], [d * .34 * s, -1.02 * s], [d * .2 * s, -.86 * s]]), furL);   // shoulder ruff
+  ctx.globalAlpha = .35; fill(ell(0, -1.04 * s, .13 * s, .06 * s), "#1a0a16"); ctx.globalAlpha = 1;                           // neck shadow
+  // arms: left holds the barrel, right pulls the trigger
+  fill(ell(-.3 * s, -.86 * s, .1 * s, .17 * s), fur);
+  for (let i = 0; i < 3; i++) fill(poly([[(-.36 + i * .05) * s, -.96 * s], [(-.38 + i * .05) * s, -1.04 * s], [(-.33 + i * .05) * s, -.97 * s]]), "#f3e6da");
+  fill(ell(.3 * s, -.88 * s, .1 * s, .16 * s), fur);
+  // head + ears
+  fill(ell(0, -1.2 * s, .19 * s, .17 * s), fur);
+  for (const d of [-1, 1]) { fill(poly([[d * .09 * s, -1.31 * s], [d * .2 * s, -1.56 * s], [d * .21 * s, -1.24 * s]]), fur);
+    fill(poly([[d * .11 * s, -1.33 * s], [d * .17 * s, -1.5 * s], [d * .18 * s, -1.28 * s]]), "#6b3a60"); }
+  // the rifle, pointing away from the camera past his left shoulder
+  const gunA = -.55 + clamp(aimX || 0, -.6, .6) * 1.1 + kick * .25;
+  ctx.save(); ctx.translate(-.26 * s, -.92 * s); ctx.rotate(gunA);
+  fill(poly([[-.1 * s, .04 * s], [.72 * s, -.07 * s], [.74 * s, .04 * s], [-.09 * s, .14 * s]]), steel);   // body
+  fill(poly([[.16 * s, .12 * s], [.3 * s, .1 * s], [.26 * s, .3 * s], [.14 * s, .3 * s]]), "#1c1c26");     // grip
+  fill(ell(-.05 * s, .09 * s, .1 * s, .08 * s), "#1c1c26");                                                // stock
+  ctx.shadowColor = "#7ef0ff"; ctx.shadowBlur = fire > 0 ? 26 : 12;
+  fill(ell(.72 * s, -.01 * s, .07 * s, .06 * s), fire > 0 ? "#ffffff" : "#8de8ff");                        // emitter
+  ctx.shadowBlur = 0;
+  const cosA = Math.cos(gunA), sinA = Math.sin(gunA);
+  MUZZLE.lx = -.26 * s + .78 * s * cosA; MUZZLE.ly = -.92 * s + .78 * s * sinA;
+  if (fire > 0) {                                                 // muzzle flash
+    ctx.globalAlpha = fire;
+    fill(ell(.8 * s, -.01 * s, .22 * s * fire + .06 * s, .15 * s * fire + .04 * s), "#ffffff");
+    fill(ell(.92 * s, -.01 * s, .34 * s * fire, .08 * s * fire), "#7ef0ff");
+    ctx.globalAlpha = 1;
   }
-  ctx.restore(); ctx.restore();
+  ctx.restore();
+  // rim light so he reads against the dark path
+  ctx.strokeStyle = rim; ctx.lineWidth = .025 * s; ctx.globalAlpha = .7;
+  ctx.beginPath(); ctx.ellipse(0, -.95 * s, .34 * s, .19 * s, 0, 3.3, 6.1); ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.restore();
 }
-
-/* ============================== particles ============================== */
-const parts = [], splats = [];
-const rings = [];
+/* ============================== particles, bolts, beams, loot ============================== */
+const parts = [], splats = [], rings = [], bolts = [], beams = [], texts = [];
+let FLASH = null;
+// a jagged line, like the demon game's lightning
+function boltPts(x1, y1, x2, y2){
+  const pts = [[x1, y1]], n = 5, j = Math.hypot(x2 - x1, y2 - y1) * .16;
+  for (let i = 1; i < n; i++) { const f = i / n;
+    pts.push([x1 + (x2 - x1) * f + rnd(-1, 1) * j, y1 + (y2 - y1) * f + rnd(-1, 1) * j]); }
+  pts.push([x2, y2]); return pts;
+}
+// everything that happens when a word dies
+function boom(x, y, s, streak, word){
+  FLASH = { a: .26 + Math.min(streak, 6) * .02, c: "#fff0ff" };
+  G.shake = 1.25 + Math.min(streak, 8) * .06;
+  G.hitstop = .045;
+  for (const [l, col] of [[.3, "#fff2ff"], [.42, "#ff3b6e"], [.5, "#8de8ff"]])
+    rings.push({ x, y, t: 0, life: l, s, big: streak % 5 === 4 });
+  for (let i = 0; i < 6; i++) {                                   // lightning tearing out of the body
+    const a = rnd(0, 6.2832), d = s * rnd(.35, .8);
+    bolts.push({ pts: boltPts(x, y, x + Math.cos(a) * d, y + Math.sin(a) * d), t: 0, life: .16,
+      c: i % 2 ? "#bfe9ff" : "#ffd6ff" });
+  }
+  for (let i = 0; i < 26; i++) {                                  // white-hot sparks
+    const a = rnd(0, 6.2832), v = rnd(.6, 2.2) * s * .06;
+    parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: rnd(.008, .02) * s,
+      c: Math.random() < .5 ? "#ffffff" : "#8de8ff", life: rnd(.2, .45), t: 0, spin: 0, rot: 0, spark: true, g: .15 });
+  }
+  const coins = 14 + Math.min(streak, 8) * 2;                     // loot pouring out of the corpse
+  for (let i = 0; i < coins; i++) {
+    const a = rnd(-2.6, -.5), v = rnd(.9, 2.1) * s * .05;
+    parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: rnd(.03, .05) * s,
+      c: Math.random() < .25 ? "#ff7ad8" : "#ffd23f", life: rnd(.9, 1.5), t: 0, spin: rnd(-14, 14), rot: 0, coin: true, g: 1.5 });
+  }
+  if (word) texts.push({ x, y: y - s * .3, txt: word, t: 0, life: .75 });
+  sfxKill(); sfxCoins(streak);
+}
 function gore(x, y, s, big){
   rings.push({ x, y, t: 0, life: .26, s, big });
   const n = big ? 70 : 48;
@@ -355,14 +428,19 @@ function stepParts(dt, groundY){
   for (let i = parts.length - 1; i >= 0; i--) {
     const p = parts[i]; p.t += dt;
     if (p.t >= p.life) { parts.splice(i, 1); continue; }
-    p.x += p.vx; p.y += p.vy; p.vy += (p.mist ? -.12 : 1.1) * dt * 60 * .5; p.rot += p.spin * dt;
-    if (!p.mist && p.y > groundY && p.vy > 0) {                 // it lands on the dark soil and stays a moment
+    p.x += p.vx; p.y += p.vy; p.vy += (p.mist ? -.12 : (p.g !== undefined ? p.g : 1.1)) * dt * 60 * .5; p.rot += p.spin * dt;
+    if (p.spark) p.vx *= .93, p.vy *= .93;
+    if (!p.mist && !p.spark && !p.coin && p.y > groundY && p.vy > 0) {                 // it lands on the dark soil and stays a moment
       splats.push({ x: p.x + rnd(-14, 14), y: groundY + rnd(-4, 40), r: p.r * rnd(.8, 1.6), c: p.c, t: 0, life: 2.4 });
       parts.splice(i, 1);
     }
   }
   for (let i = splats.length - 1; i >= 0; i--) { const s = splats[i]; s.t += dt; if (s.t >= s.life) splats.splice(i, 1); }
   for (let i = rings.length - 1; i >= 0; i--) { const r = rings[i]; r.t += dt; if (r.t >= r.life) rings.splice(i, 1); }
+  for (let i = bolts.length - 1; i >= 0; i--) { const b = bolts[i]; b.t += dt; if (b.t >= b.life) bolts.splice(i, 1); }
+  for (let i = beams.length - 1; i >= 0; i--) { const b = beams[i]; b.t += dt; if (b.t >= b.life) beams.splice(i, 1); }
+  for (let i = texts.length - 1; i >= 0; i--) { const x = texts[i]; x.t += dt; x.y -= dt * 60; if (x.t >= x.life) texts.splice(i, 1); }
+  if (FLASH) { FLASH.a -= dt * 4.2; if (FLASH.a <= 0) FLASH = null; }
 }
 function drawRings(){
   for (const r of rings) { const k = r.t / r.life;
@@ -370,13 +448,54 @@ function drawRings(){
     ctx.beginPath(); ctx.ellipse(r.x, r.y, r.s * (.15 + k * .75), r.s * (.1 + k * .5), 0, 0, 6.2832); ctx.stroke(); }
   ctx.globalAlpha = 1;
 }
+function drawBolts(){
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  for (const b of bolts) { const a = 1 - b.t / b.life;
+    ctx.globalAlpha = a; ctx.shadowColor = b.c; ctx.shadowBlur = 22;
+    ctx.strokeStyle = b.c; ctx.lineWidth = 9 * a + 2;
+    ctx.beginPath(); b.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3 * a + 1;
+    ctx.beginPath(); b.pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke();
+  }
+  ctx.shadowBlur = 0; ctx.globalAlpha = 1;
+}
+function drawBeams(){
+  for (const b of beams) {                                        // the laser bolt on its way to the target
+    const k = clamp(b.t / b.life, 0, 1), tail = Math.max(0, k - .55);
+    const x1 = b.x0 + (b.x1 - b.x0) * k, y1 = b.y0 + (b.y1 - b.y0) * k;
+    const x0 = b.x0 + (b.x1 - b.x0) * tail, y0 = b.y0 + (b.y1 - b.y0) * tail;
+    ctx.shadowColor = "#7ef0ff"; ctx.shadowBlur = 26;
+    ctx.strokeStyle = "rgba(126,240,255,.85)"; ctx.lineWidth = 9;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+}
+function drawTexts(){
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  for (const x of texts) { const k = x.t / x.life;
+    ctx.globalAlpha = clamp(1 - k, 0, 1);
+    ctx.font = Math.round(clamp(Math.min(W, H) * .055, 16, 32) * (1 + (1 - k) * .25)) + 'px "Jua", sans-serif';
+    ctx.lineWidth = 4; ctx.strokeStyle = "rgba(10,1,7,.85)"; ctx.strokeText(x.txt, x.x, x.y);
+    ctx.fillStyle = "#ffd23f"; ctx.fillText(x.txt, x.x, x.y);
+  }
+  ctx.globalAlpha = 1;
+}
 function drawParts(){
   for (const s of splats) { ctx.globalAlpha = clamp(1 - s.t / s.life, 0, 1) * .85; fill(ell(s.x, s.y, s.r * 1.6, s.r * .5), s.c); }
   ctx.globalAlpha = 1;
   for (const p of parts) {
-    ctx.globalAlpha = p.mist ? clamp(1 - p.t / p.life, 0, 1) * .5 : 1;
+    const fade = clamp(1 - p.t / p.life, 0, 1);
+    ctx.globalAlpha = p.mist ? fade * .5 : p.coin ? clamp(fade * 2.5, 0, 1) : p.spark ? fade : 1;
     ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-    ctx.fillStyle = p.c; ctx.fillRect(-p.r, -p.r * .7, p.r * 2, p.r * 1.4); ctx.restore();
+    if (p.spark) { ctx.strokeStyle = p.c; ctx.lineWidth = Math.max(1.5, p.r); ctx.shadowColor = p.c; ctx.shadowBlur = 10;
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-p.vx * 2.2, -p.vy * 2.2); ctx.stroke(); ctx.shadowBlur = 0; }
+    else if (p.coin) { ctx.scale(Math.abs(Math.cos(p.rot)) * .8 + .2, 1);   // a spinning coin
+      ctx.fillStyle = p.c; ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r, 0, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.55)"; ctx.beginPath(); ctx.ellipse(-p.r * .25, -p.r * .25, p.r * .35, p.r * .35, 0, 0, 6.2832); ctx.fill(); }
+    else ctx.fillStyle = p.c, ctx.fillRect(-p.r, -p.r * .7, p.r * 2, p.r * 1.4);
+    ctx.restore();
   }
   ctx.globalAlpha = 1;
 }
@@ -423,7 +542,7 @@ function drawGround(scroll, W, H, horizon){
 }
 
 /* ============================== game state ============================== */
-const G = { fleeing: null, running: false, deck: [], pool: [], total: 0, done: 0, wrong: 0, t: 0, scroll: 0,
+const G = { fleeing: null, streak: 0, hitstop: 0, running: false, deck: [], pool: [], total: 0, done: 0, wrong: 0, t: 0, scroll: 0,
   mons: [], labels: [], prompt: "", correct: "", anim: null, shake: 0, t0: 0, ending: 0, home: null, flash: 0 };
 const STEP = .3;                                               // 300ms: the whole rhythm of the game (answer 11)
 window.__G = G;                                                // so the game can be driven from the console while testing
@@ -462,7 +581,8 @@ function startRun(){
   for (const w of G.pool) { G.deck.push(w); G.deck.push(w); }     // every word exactly twice (answers 24 + 49)
   for (let i = G.deck.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [G.deck[i], G.deck[j]] = [G.deck[j], G.deck[i]]; }
   G.total = G.deck.length; G.done = 0; G.wrong = 0; G.scroll = 0; G.ending = 0; G.home = null; G.shake = 0;
-  parts.length = 0; splats.length = 0; rings.length = 0; G.fleeing = null;
+  parts.length = 0; splats.length = 0; rings.length = 0; bolts.length = 0; beams.length = 0; texts.length = 0;
+  FLASH = null; G.fleeing = null; G.streak = 0; G.hitstop = 0;
   newEncounter();
   G.running = true; G.t0 = performance.now();
   $("#menu").hidden = true; $("#over").hidden = true; $("#quitBtn").hidden = false; $("#muteBtn").hidden = false;
@@ -519,10 +639,12 @@ function drawLabels(){
   }
 }
 function drawPrompt(L){
-  const fs = clamp(Math.min(W, H) * .055, 16, 32);
+  const fs0 = clamp(Math.min(W, H) * .055, 16, 32), maxW = W * .94;
   const y = H - Math.max(H * .055, 34);
-  ctx.font = fs + 'px "Jua", sans-serif'; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  const w = Math.min(ctx.measureText(G.prompt).width + fs * 1.4, W * .94), h = fs * 1.9;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  let fs = fs0, tw;
+  for (;;) { ctx.font = fs + 'px "Jua", sans-serif'; tw = ctx.measureText(G.prompt).width; if (tw + fs * 1.4 <= maxW || fs <= 12) break; fs -= 1; }
+  const w = Math.min(tw + fs * 1.4, maxW), h = fs0 * 1.9;
   const p = new Path2D(); p.roundRect(W / 2 - w / 2, y - h / 2, w, h, h * .4);
   ctx.fillStyle = "rgba(10,1,7,.88)"; ctx.fill(p); ctx.strokeStyle = "#5e0a48"; ctx.lineWidth = 2; ctx.stroke(p);
   ctx.fillStyle = "#ffd9ef"; ctx.fillText(G.prompt, W / 2, y + 1);
@@ -560,8 +682,8 @@ cv.addEventListener("pointerdown", e => { e.preventDefault(); const r = cv.getBo
 function answer(l){
   const right = l.kr === G.correct;
   l.hit = 1;
-  G.anim = { t: 0, kind: right ? "kill" : "clank", mon: l.mon, label: l, fired: false };
-  if (!right) G.wrong++;
+  G.anim = { t: 0, kind: right ? "kill" : "clank", mon: l.mon, label: l, fired: false, shot: false, word: l.kr };
+  if (!right) { G.wrong++; G.streak = 0; }
 }
 
 /* ============================== the 300ms beat ============================== */
@@ -569,19 +691,32 @@ function stepAnim(dt, L){
   const A = G.anim; if (!A) return;
   A.t += dt;
   const k = clamp(A.t / STEP, 0, 1);
-  if (!A.fired && k > .38) {
+  if (!A.shot && k > .06) {                                       // he fires almost immediately
+    A.shot = true;
+    beams.push({ x0: MUZZLE.x, y0: MUZZLE.y, x1: L.xs[A.mon], y1: L.groundY - L.monS * .55, t: 0, life: .12 });
+    sfxLaser();
+  }
+  if (!A.fired && k > .3) {                                       // ~90ms later it lands
     A.fired = true;
     if (A.kind === "kill") {
-      sfxKill();
       const x = L.xs[A.mon], y = L.groundY - L.monS * .5;
-      gore(x, y, L.monS, G.done % 5 === 4);
+      G.streak++;
+      gore(x, y, L.monS, G.streak % 5 === 0);
+      boom(x, y, L.monS, G.streak, A.word);
       G.mons[A.mon].dead = true;
       G.fleeing = { b: G.mons[1 - A.mon], t: 0, dir: A.mon === 0 ? 1 : -1 };   // the survivor bolts off screen
-      G.shake = 1; G.flash = 1;
+
       G.done++;
       if (G.done >= G.total) { beginEnding(); G.anim = null; return; }
       newEncounter(); sfxStep();                                   // new words are readable at once (answer 55)
-    } else { sfxClank(); G.shake = .45; }
+    } else {                                                     // the beam glances off: sparks, no kill
+      sfxClank(); G.shake = .5;
+      const x = L.xs[A.mon], y = L.groundY - L.monS * .55;
+      rings.push({ x, y, t: 0, life: .2, s: L.monS * .4, big: false });
+      for (let i = 0; i < 14; i++) { const a = rnd(0, 6.2832), v = rnd(.4, 1.4) * L.monS * .05;
+        parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: rnd(.006, .016) * L.monS,
+          c: "#ffd7a1", life: rnd(.15, .35), t: 0, spin: 0, rot: 0, spark: true, g: .3 }); }
+    }
   }
   if (k >= 1) {
     if (A.kind !== "kill") G.labels.forEach(x => x.hit = 0);
@@ -609,10 +744,10 @@ function frame(now){
   // the forest never stops moving (answer 42), and a kill shoves it forward
   const rush = G.anim && G.anim.kind === "kill" ? 6 : 0;
   G.scroll += dt * (.35 + rush) + (G.ending ? dt * .6 : 0);
-  if (G.running) stepAnim(dt, L);
+  if (G.hitstop > 0) { G.hitstop -= dt; }                        // ~45ms of freeze so the hit has weight
+  else if (G.running) stepAnim(dt, L);
   if (G.ending) { G.ending += dt; if (G.ending > 5) { finishRun(); } }
   G.shake = Math.max(0, G.shake - dt * 4.5);
-  G.flash = Math.max(0, G.flash - dt * 6);
   stepParts(dt, L.groundY + L.monS * .02);
 
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -651,17 +786,13 @@ function frame(now){
         ctx.translate(L.xs[G.fleeing.dir > 0 ? 1 : 0] + G.fleeing.dir * f * W * .95, L.groundY - f * H * .03);
         drawBeast(G.fleeing.b, L.monS * G.fleeing.b.big * (1 - f * .25), G.t); ctx.restore(); ctx.globalAlpha = 1; }
     }
-    // the wolf lunges at whoever wears the word you tapped
-    let wx = W * .5, wy = L.wolfY, lunge = 0, jaw = 0;
-    if (A) {
-      const go = k < .5 ? k / .5 : 1 - (k - .5) / .5;           // out and back
-      const tx = L.xs[A.mon], ty = L.groundY + L.monS * .1;
-      wx += (tx - W * .5) * go * .85; wy += (ty - L.wolfY) * go * .85;
-      lunge = go; jaw = clamp(go * 1.6, 0, 1);
-    }
-    const ws = L.wolfS * (1 - (A ? clamp(k, 0, 1) * .18 : 0));
-    ctx.save(); ctx.translate(wx, wy); drawWolf(ws, G.t, lunge, jaw); ctx.restore();
-    drawRings(); drawParts();
+    // he plants his feet and fires; only the gun and the recoil move
+    const wx = W * .5, wy = L.wolfY, ws = L.wolfS;
+    const fire = A && A.shot && k < .34 ? 1 - clamp((k - .06) / .28, 0, 1) : 0;
+    const aimX = A ? (L.xs[A.mon] - W * .5) / W : 0;
+    ctx.save(); ctx.translate(wx, wy); drawWolf(ws, G.t, fire, aimX); ctx.restore();
+    MUZZLE.x = wx + (MUZZLE.lx || 0); MUZZLE.y = wy + (MUZZLE.ly || 0);   // set by drawWolf, in local units
+    drawRings(); drawBolts(); drawParts(); drawBeams(); drawTexts();
     drawLabels();
     drawPrompt(L);
     // progress: a thin line of path already walked, no numbers (answer 42)
@@ -676,7 +807,7 @@ function frame(now){
     const wy = L.wolfY - (L.wolfY - fy) * ease;
     const nuzzle = e > .62 ? Math.sin((e - .62) * 14) * .16 : 0;
     ctx.save(); ctx.translate(wx, wy); ctx.rotate(-nuzzle - ease * .12);
-    drawWolf(L.wolfS * (.78 - e * .1), G.t, 0, 0); ctx.restore();
+    drawWolf(L.wolfS * (.62 - e * .08), G.t, 0, 0); ctx.restore();
     if (e > .62 && Math.random() < .12) {                          // little sparks of warmth, and the pups yip
       parts.push({ x: fx + rnd(-fs, fs), y: fy - fs * .8, vx: rnd(-.4, .4), vy: rnd(-1.6, -.7),
         r: rnd(2, 5), c: Math.random() < .5 ? "#ffcf7a" : "#ff8ad0", life: rnd(.7, 1.3), t: 0, spin: rnd(-4, 4), rot: 0, mist: true });
@@ -688,7 +819,7 @@ function frame(now){
     ctx.fillText("집 · home", W / 2, H * .16);
     ctx.globalAlpha = 1;
   }
-  if (G.flash > 0) { ctx.fillStyle = "rgba(171,14,5," + (G.flash * .22).toFixed(3) + ")"; ctx.fillRect(0, 0, W, H); }
+  if (FLASH) { ctx.globalAlpha = clamp(FLASH.a, 0, 1); ctx.fillStyle = FLASH.c; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   requestAnimationFrame(frame);
 }
 window.__tick = frame;                                         // testing: drive frames by hand when rAF is paused
