@@ -737,7 +737,15 @@ function finishRun(){
   $("#sKills").textContent = G.total;
   $("#sTime").textContent = Math.floor(secs / 60) + ":" + String(Math.floor(secs % 60)).padStart(2, "0");
   $("#sPace").textContent = (secs / Math.max(1, G.total)).toFixed(1) + "s";
-  $("#overSub").textContent = G.wrong === 0 ? "Not one wrong bite." : G.wrong + " wrong bite" + (G.wrong > 1 ? "s" : "") + " on the way.";
+  // the verdict: 6 seconds a word is the line between "keep drilling" and "take a new set"
+  const pace = secs / Math.max(1, G.total), acc = 1 - G.wrong / Math.max(1, G.total + G.wrong);
+  let verdict, col;
+  if (pace >= 6) { verdict = "조금 더 · train this set a bit more"; col = "#ff9ad8"; }
+  else if (acc < .85) { verdict = "빨라요, 하지만 틀린 게 많아요 · fast, but too many misses — one more run"; col = "#ffb347"; }
+  else if (pace >= 3) { verdict = "통과 · you can move on to the next set"; col = "#7ef0ff"; }
+  else { verdict = "완전히 외웠어요 · this set is done, take a harder one"; col = "#8dff9e"; }
+  const misses = G.wrong === 0 ? "Not one wrong shot." : G.wrong + " wrong shot" + (G.wrong > 1 ? "s" : "") + " on the way.";
+  $("#overSub").innerHTML = '<b style="color:' + col + '">' + verdict + '</b><br><span style="opacity:.75;font-size:14px">' + misses + '</span>';
   $("#quitBtn").hidden = true; $("#muteBtn").hidden = true; $("#over").hidden = false;
 }
 
