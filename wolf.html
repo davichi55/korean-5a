@@ -195,7 +195,7 @@ $("#muteBtn").textContent = settings.mute ? "🔇" : "🔊";
 
 /* ============================== the monster generator ============================== */
 // Parts are cosmetic only: any of them dies to one bite (the rule). They exist so the crowd never repeats.
-const SKINS = ["#2b0620", "#3a0a2c", "#220518", "#41112f", "#2e0a12"];
+const SKINS = ["#8a4a72", "#9c4f58", "#7d4670", "#a35f6e", "#8f4a52", "#6f4a86"];
 const HEADS = ["boar", "skull", "crow", "goat", "frog", "rabbit", "fish", "wolf"];
 const TORSOS = ["bear", "spider", "insect", "ribs", "hound", "toad"];
 const LEGS = ["hooves", "mantis", "crab", "talons", "six", "drag"];
@@ -206,20 +206,22 @@ function makeBeast(){
     skin: pick(SKINS), tint: Math.random() < .35 ? "#4d0836" : null, flip: Math.random() < .5 ? -1 : 1,
     bob: Math.random() * 6.28, big: rnd(.9, 1.12) };
 }
-function fill(p, c){ ctx.fillStyle = c; ctx.fill(p); }
+let OUTLINE = null, OUTLINE_W = 1;                       // while a beast is drawn every shape gets a lit edge
+function fill(p, c){ ctx.fillStyle = c; ctx.fill(p); if (OUTLINE) { ctx.save(); ctx.strokeStyle = OUTLINE; ctx.lineWidth = OUTLINE_W; ctx.stroke(p); ctx.restore(); } }
 function ell(x, y, rx, ry){ const p = new Path2D(); p.ellipse(x, y, rx, ry, 0, 0, 6.2832); return p; }
 function poly(pts){ const p = new Path2D(); pts.forEach(([x, y], i) => i ? p.lineTo(x, y) : p.moveTo(x, y)); p.closePath(); return p; }
 // draws one beast with its feet at (0,0), one unit = s pixels, in the current transform
 function drawBeast(b, s, t){
-  const sk = b.skin, dark = "#150310", glow = "#ff2a17";
+  const sk = b.skin, dark = "#2a1020", glow = "#ff2a17";
   const bob = Math.sin(t * 3 + b.bob) * .012 * s;
   ctx.save(); ctx.translate(0, bob); ctx.scale(b.flip, 1);
+  OUTLINE = "rgba(255,190,240,.5)"; OUTLINE_W = Math.max(1.1, s * .011);
   // ---- legs ----
-  ctx.strokeStyle = dark; ctx.lineCap = "round";
+  ctx.strokeStyle = sk; ctx.lineCap = "round";                    // limbs share the body colour so they read as one animal
   const legY = 0, hip = -.34 * s;
   if (b.legs === "hooves") { ctx.lineWidth = .11 * s;
     for (const x of [-.22, .2]) { ctx.beginPath(); ctx.moveTo(x * s, hip); ctx.lineTo(x * s, legY); ctx.stroke(); }
-    ctx.fillStyle = "#0d020a"; for (const x of [-.22, .2]) ctx.fillRect(x * s - .07 * s, legY - .05 * s, .14 * s, .06 * s); }
+    ctx.fillStyle = "#3a2030"; for (const x of [-.22, .2]) ctx.fillRect(x * s - .07 * s, legY - .05 * s, .14 * s, .06 * s); }
   else if (b.legs === "mantis") { ctx.lineWidth = .05 * s;
     for (const x of [-.26, .18]) { ctx.beginPath(); ctx.moveTo(x * s, hip); ctx.lineTo((x - .16) * s, hip + .2 * s); ctx.lineTo(x * s, legY); ctx.stroke(); } }
   else if (b.legs === "crab") { ctx.lineWidth = .035 * s;
@@ -245,7 +247,7 @@ function drawBeast(b, s, t){
   else if (b.torso === "spider") { fill(ell(.1 * s, -.6 * s, .36 * s, .3 * s), sk); ctx.strokeStyle = dark; ctx.lineWidth = .02 * s;
     for (const d of [-.1, 0, .12]) { ctx.beginPath(); ctx.ellipse(.1 * s, -.6 * s, .36 * s, (.3 + d * .3) * s, 0, 3.4, 6.0); ctx.stroke(); } }
   else if (b.torso === "insect") { for (let i = 0; i < 3; i++) fill(ell((-.14 + i * .16) * s, -.6 * s, .13 * s, .24 * s), i % 2 ? sk : dark); }
-  else if (b.torso === "ribs") { fill(ell(0, -.6 * s, .3 * s, .28 * s), "#1c0412"); ctx.strokeStyle = "#e8d9cf"; ctx.lineWidth = .025 * s;
+  else if (b.torso === "ribs") { fill(ell(0, -.6 * s, .3 * s, .28 * s), "#4a2138"); ctx.strokeStyle = "#e8d9cf"; ctx.lineWidth = .025 * s;
     for (let i = 0; i < 4; i++) { const x = (-.18 + i * .12) * s; ctx.beginPath(); ctx.moveTo(x, -.82 * s); ctx.quadraticCurveTo(x + .05 * s, -.6 * s, x, -.38 * s); ctx.stroke(); } }
   else if (b.torso === "hound") fill(ell(0, -.62 * s, .3 * s, .19 * s), sk);
   else fill(ell(0, -.56 * s, .4 * s, .33 * s), sk);                 // bloated toad
@@ -285,6 +287,7 @@ function drawBeast(b, s, t){
     for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo((-.24 + i * .14) * s, -.38 * s); ctx.quadraticCurveTo((-.18 + i * .14) * s, -.62 * s, (-.26 + i * .16) * s, -.84 * s); ctx.stroke(); } ctx.globalAlpha = 1; }
   else if (b.mut === "bone") { ctx.strokeStyle = "#e8d9cf"; ctx.lineWidth = .02 * s;
     for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo((-.1 + i * .12) * s, -.8 * s); ctx.lineTo((-.06 + i * .12) * s, -.44 * s); ctx.stroke(); } }
+  OUTLINE = null;
   ctx.restore();
 }
 
@@ -293,7 +296,7 @@ function drawWolf(s, t, lunge, jaw){
   // lunge: 0..1 how far into a bite we are; jaw: 0..1 how open the mouth is
   const bob = Math.sin(t * 6) * .01 * s * (1 - lunge);
   ctx.save(); ctx.translate(0, bob);
-  const fur = "#241021", furL = "#3a1c33", rim = "#8d1d6f";
+  const fur = "#3b1c35", furL = "#553050", rim = "#ff7ad8";
   const stretch = 1 + lunge * .25;
   ctx.save(); ctx.scale(1, 1 / (1 + lunge * .1));
   fill(ell(0, -.3 * s, .34 * s * stretch, .3 * s), fur);                 // rump / body
@@ -305,7 +308,7 @@ function drawWolf(s, t, lunge, jaw){
   fill(ell(0, -.86 * s, .2 * s, .17 * s), fur);                          // head from behind
   for (const d of [-1, 1]) { fill(poly([[d * .1 * s, -.98 * s], [d * .2 * s, -1.22 * s], [d * .22 * s, -.92 * s]]), fur);
     fill(poly([[d * .12 * s, -1 * s], [d * .18 * s, -1.16 * s], [d * .19 * s, -.96 * s]]), "#5a2b4e"); }   // ears
-  ctx.strokeStyle = rim; ctx.lineWidth = .02 * s; ctx.globalAlpha = .6;   // magenta rim light
+  ctx.strokeStyle = rim; ctx.lineWidth = .025 * s; ctx.globalAlpha = .75;   // magenta rim light
   ctx.beginPath(); ctx.ellipse(0, -.62 * s, .27 * s, .24 * s, 0, 3.3, 6.1); ctx.stroke(); ctx.globalAlpha = 1;
   if (jaw > 0) {                                                          // jaws, seen past the head
     const o = jaw * .16 * s;
@@ -466,8 +469,8 @@ function layout(){
   const horizon = H * .42;
   const groundY = H * .60;                                   // where the two monsters stand
   const wolfY = H * .90, wolfS = Math.min(W * .42, H * .26);
-  const monS = Math.min(W * .44, H * .30);
-  return { horizon, groundY, wolfY, wolfS, monS, xs: [W * .25, W * .75] };
+  const monS = Math.min(W * .37, H * .26);
+  return { horizon, groundY, wolfY, wolfS, monS, xs: [W * .24, W * .76] };
 }
 function labelBoxes(L){
   const fs0 = clamp(Math.min(W, H) * .052, 15, 30), maxW = W * .46;
@@ -616,6 +619,9 @@ function frame(now){
       if (m.dead) return;
       let s = L.monS * m.big, x = L.xs[i], y = L.groundY;
       if (m.arrive < 1) { const e = 1 - Math.pow(1 - m.arrive, 3); s *= .4 + e * .6; y = L.horizon + (L.groundY - L.horizon) * (.55 + e * .45); }
+      const pool = ctx.createRadialGradient(x, y, 0, x, y, s * 1.1);
+      pool.addColorStop(0, "rgba(140,16,112,.28)"); pool.addColorStop(1, "rgba(110,8,88,0)");
+      ctx.fillStyle = pool; ctx.beginPath(); ctx.ellipse(x, y, s * 1.25, s * .3, 0, 0, 6.2832); ctx.fill();
       ctx.save(); ctx.translate(x, y); drawBeast(m, s, G.t); ctx.restore();
       m.arrive = Math.min(1, m.arrive + dt / STEP);
     });
