@@ -1,0 +1,15 @@
+{
+  "name": "Korean 5A 바꿔 쓰기",
+  "short_name": "5A 바꿔 쓰기",
+  "description": "Sogang Korean 5A: pick the word that can replace the underlined part",
+  "id": "./swap.html",
+  "start_url": "./swap.html",
+  "scope": "./swap.html",
+  "display": "standalone",
+  "background_color": "#0f1420",
+  "theme_color": "#0f1420",
+  "icons": [
+    { "src": "icon-swap-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-swap-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
