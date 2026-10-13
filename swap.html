@@ -514,13 +514,9 @@ function reward(ok, q, rect, body){
   const fb = $("#fb");
   fb.className = "fb " + (ok ? "good" : "bad");
   fb.innerHTML = `<div class="head">${ok ? "✔ " + esc(T(R.combo >= 5 ? "great" : "right")) : "✖ " + esc(T("wrong"))}</div>${body}
-    <button class="next" id="nextBtn">${esc(T(R.i + 1 >= R.qs.length ? "finish" : "next"))} →<i id="nextBar"></i></button>`;
+    <button class="next" id="nextBtn">${esc(T(R.i + 1 >= R.qs.length ? "finish" : "next"))} →</button>`;
   $("#nextBtn").onclick = nextQ;
-  if (ok) {   // a right answer moves on by itself; tap to go faster
-    const bar = $("#nextBar"), ms = R.mode === "g" ? 2600 : 2200; bar.style.transition = "none"; bar.style.width = "0";
-    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.transition = `width ${ms / 1000}s linear`; bar.style.width = "100%"; }));
-    R.timer = setTimeout(nextQ, ms);
-  }
+  // no auto-advance: the feedback stays until Next is tapped, so there is time to read it
 }
 function nextQ(){
   if (!R || !R.answered) return;
