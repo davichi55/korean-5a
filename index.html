@@ -184,6 +184,16 @@
   }
   .lpbox .opt:hover{border-color:var(--accent);background:#233256}
   .lpbox .opt small{display:block;font-size:12px;color:var(--dim);font-weight:400;margin-top:3px}
+  .lpbox .opt.go{background:var(--accent);border-color:var(--accent);color:#fff}
+  .lpbox .opt.go small{color:#e6edff}
+  .lpbox .chgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .lpbox .chgrid .opt{margin:0;font-size:18px;padding:12px 8px}
+  .lpbox .back{background:none;border:0;color:var(--dim);font:inherit;font-size:14px;cursor:pointer;padding:6px;margin-top:6px}
+  .lpbox .back:hover{color:var(--txt)}
+  #lpopts{max-height:70vh;overflow-y:auto}
+  .chbtnTop{margin-left:6px;align-self:center;background:var(--card);border:1px solid var(--line);color:var(--txt);
+    border-radius:10px;padding:6px 10px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+  .chbtnTop:hover{border-color:var(--accent)}
   @media(max-width:520px){
     .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
     .fcard .fkr{font-size:38px}
@@ -206,6 +216,7 @@
     <h1>Korean 5A — <span data-i="vocab">Vocabulary</span></h1>
     <span class="sub" id="totsub"></span>
     <div class="langsw" id="langsw"></div>
+    <button class="chbtnTop" id="chTop" type="button">📚 <span data-i="chbtn">Chapter</span></button>
     <button class="hdrtog" id="hdrTog" aria-controls="hdr" aria-expanded="true" title="Hide/show the controls">⌃</button>
   </div>
   <div class="controls">
@@ -290,37 +301,37 @@ const I18N = {
       tapflip:"tap to flip",prev:"Prev",gotit:"Got it",next:"Next",shuffle:"Shuffle",reset:"Reset known",
       foot:"Tap a card to see the meaning. ★ marks priority words. Sogang Korean 5A.",
       words:"words",sections:"sections",selected:"selected",learned:"learned",nomatch:"No words match.",
-      alldone:"All done for this selection!",again:"Tap 'Reset known' to study again",untr:"not translated yet",tap:"tap"},
+      alldone:"All done for this selection!",again:"Tap 'Reset known' to study again",untr:"not translated yet",tap:"tap",pickch:"Which chapter do you want to study?",pickchsub:"You can change this later with the 📚 button.",allch:"All chapters",cont:"Continue where you left off",pickpart:"Which part of {ch}?",wholech:"The whole chapter",back:"‹ Back",chbtn:"Chapter"},
   zh:{vocab:"词汇",search:"搜索韩语或中文…",browse:"浏览",flash:"闪卡",priority:"重点",
       reveal:"全部显示",hide:"全部隐藏",pick:"选择要预习的课和部分",selall:"全选",selnone:"清空",
       tapflip:"点击翻面",prev:"上一个",gotit:"记住了",next:"下一个",shuffle:"打乱",reset:"重置已记住",
       foot:"点击卡片查看意思。★ 表示重点词。西江大学韩国语 5A。",
       words:"个词",sections:"个部分",selected:"已选",learned:"已记住",nomatch:"没有匹配的词。",
-      alldone:"这部分都学完了！",again:"点击“重置已记住”再学一遍",untr:"尚未翻译",tap:"点击"},
+      alldone:"这部分都学完了！",again:"点击“重置已记住”再学一遍",untr:"尚未翻译",tap:"点击",pickch:"你想学习哪一课？",pickchsub:"之后可以用 📚 按钮更改。",allch:"全部课",cont:"继续上次的内容",pickpart:"{ch} 的哪个部分？",wholech:"整课",back:"‹ 返回",chbtn:"选课"},
   zht:{vocab:"詞彙",search:"搜尋韓語或中文…",browse:"瀏覽",flash:"閃卡",priority:"重點",
       reveal:"全部顯示",hide:"全部隱藏",pick:"選擇要預習的課和部分",selall:"全選",selnone:"清空",
       tapflip:"點擊翻面",prev:"上一個",gotit:"記住了",next:"下一個",shuffle:"打亂",reset:"重設已記住",
       foot:"點擊卡片查看意思。★ 表示重點詞。西江大學韓國語 5A。",
       words:"個詞",sections:"個部分",selected:"已選",learned:"已記住",nomatch:"沒有符合的詞。",
-      alldone:"這部分都學完了！",again:"點擊「重設已記住」再學一遍",untr:"尚未翻譯",tap:"點擊"},
+      alldone:"這部分都學完了！",again:"點擊「重設已記住」再學一遍",untr:"尚未翻譯",tap:"點擊",pickch:"你想學習哪一課？",pickchsub:"之後可以用 📚 按鈕更改。",allch:"全部課",cont:"繼續上次的內容",pickpart:"{ch} 的哪個部分？",wholech:"整課",back:"‹ 返回",chbtn:"選課"},
   ru:{vocab:"Словарь",search:"Поиск по-корейски или по-русски…",browse:"Обзор",flash:"Карточки",priority:"Важные",
       reveal:"Показать все",hide:"Скрыть все",pick:"Выберите уроки и разделы для просмотра",selall:"Все",selnone:"Ничего",
       tapflip:"нажмите, чтобы перевернуть",prev:"Назад",gotit:"Знаю",next:"Дальше",shuffle:"Перемешать",reset:"Сбросить выученные",
       foot:"Нажмите на карточку, чтобы увидеть значение. ★ — важные слова. Соган, корейский язык 5A.",
       words:"слов",sections:"разделов",selected:"выбрано",learned:"выучено",nomatch:"Ничего не найдено.",
-      alldone:"В этом наборе всё выучено!",again:"Нажмите «Сбросить выученные», чтобы повторить",untr:"перевода пока нет",tap:"нажать"},
+      alldone:"В этом наборе всё выучено!",again:"Нажмите «Сбросить выученные», чтобы повторить",untr:"перевода пока нет",tap:"нажать",pickch:"Какой урок вы хотите учить?",pickchsub:"Потом это можно поменять кнопкой 📚.",allch:"Все уроки",cont:"Продолжить с прошлого раза",pickpart:"Какую часть урока {ch}?",wholech:"Весь урок",back:"‹ Назад",chbtn:"Урок"},
   th:{vocab:"คำศัพท์",search:"ค้นหาภาษาเกาหลีหรือภาษาไทย…",browse:"ดูทั้งหมด",flash:"บัตรคำ",priority:"คำสำคัญ",
       reveal:"แสดงทั้งหมด",hide:"ซ่อนทั้งหมด",pick:"เลือกบทและส่วนที่ต้องการดูล่วงหน้า",selall:"ทั้งหมด",selnone:"ไม่เลือก",
       tapflip:"แตะเพื่อพลิก",prev:"ก่อนหน้า",gotit:"จำได้แล้ว",next:"ถัดไป",shuffle:"สลับ",reset:"รีเซ็ตที่จำได้",
       foot:"แตะการ์ดเพื่อดูความหมาย ★ คือคำสำคัญ ภาษาเกาหลีซอกัง 5A",
       words:"คำ",sections:"ส่วน",selected:"เลือกแล้ว",learned:"จำได้แล้ว",nomatch:"ไม่พบคำที่ตรงกัน",
-      alldone:"เรียนครบส่วนนี้แล้ว!",again:"แตะ 'รีเซ็ตที่จำได้' เพื่อเรียนอีกครั้ง",untr:"ยังไม่ได้แปล",tap:"แตะ"},
+      alldone:"เรียนครบส่วนนี้แล้ว!",again:"แตะ 'รีเซ็ตที่จำได้' เพื่อเรียนอีกครั้ง",untr:"ยังไม่ได้แปล",tap:"แตะ",pickch:"อยากเรียนบทไหน?",pickchsub:"เปลี่ยนภายหลังได้ด้วยปุ่ม 📚",allch:"ทุกบท",cont:"เรียนต่อจากครั้งที่แล้ว",pickpart:"ส่วนไหนของ {ch}?",wholech:"ทั้งบท",back:"‹ ย้อนกลับ",chbtn:"เลือกบท"},
   vi:{vocab:"Từ vựng",search:"Tìm bằng tiếng Hàn hoặc tiếng Việt…",browse:"Duyệt",flash:"Thẻ ghi nhớ",priority:"Trọng tâm",
       reveal:"Hiện tất cả",hide:"Ẩn tất cả",pick:"Chọn bài và phần bạn muốn xem trước",selall:"Tất cả",selnone:"Bỏ chọn",
       tapflip:"chạm để lật",prev:"Trước",gotit:"Đã thuộc",next:"Tiếp",shuffle:"Xáo trộn",reset:"Đặt lại đã thuộc",
       foot:"Chạm vào thẻ để xem nghĩa. ★ là từ trọng tâm. Tiếng Hàn Sogang 5A.",
       words:"từ",sections:"phần",selected:"đã chọn",learned:"đã thuộc",nomatch:"Không tìm thấy từ nào.",
-      alldone:"Đã học xong phần này!",again:"Chạm 'Đặt lại đã thuộc' để học lại",untr:"chưa có bản dịch",tap:"chạm"},
+      alldone:"Đã học xong phần này!",again:"Chạm 'Đặt lại đã thuộc' để học lại",untr:"chưa có bản dịch",tap:"chạm",pickch:"Bạn muốn học bài nào?",pickchsub:"Có thể đổi sau bằng nút 📚.",allch:"Tất cả các bài",cont:"Tiếp tục từ lần trước",pickpart:"Phần nào của {ch}?",wholech:"Cả bài",back:"‹ Quay lại",chbtn:"Chọn bài"},
 };
 const LANGS = DATA.languages.map(l=>l.code);
 const BCP47 = {en:"en", zh:"zh-Hans", zht:"zh-Hant", th:"th", ru:"ru"};     // for lang= attributes (font selection)
@@ -368,11 +379,48 @@ function applyLang(code,save){
   $("#langpick").hidden=true;
 }
 function showLangPick(){
+  setLpHead("언어를 선택하세요","Choose your language · 选择你的语言 · เลือกภาษาของคุณ");
   const box=$("#lpopts");box.innerHTML="";
   DATA.languages.forEach(l=>{const b=document.createElement("button");b.className="opt";b.setAttribute("lang",htmlLang(l.code));
-    b.innerHTML=esc(l.native)+"<small>"+esc(l.name)+"</small>";b.onclick=()=>{applyLang(l.code,true);render();};box.appendChild(b);});
+    b.innerHTML=esc(l.native)+"<small>"+esc(l.name)+"</small>";b.onclick=()=>{applyLang(l.code,true);render();showChPick(false);};box.appendChild(b);});
   $("#langpick").hidden=false;
 }
+
+/* ---------- chapter step: which chapter → which part (shown after the language and on every visit) ---------- */
+function setLpHead(title,sub){const h=$("#langpick h2"),p=$("#langpick p");h.textContent=title;p.textContent=sub||"";p.hidden=!sub;}
+function choose(ids){state.sel=new Set(ids);selChanged();$("#langpick").hidden=true;window.scrollTo(0,0);}
+function showChPick(offerContinue){
+  setLpHead(T("pickch"),T("pickchsub"));
+  const box=$("#lpopts");box.innerHTML="";
+  const saved=store.get("k5a_sel");
+  if(offerContinue&&saved&&state.sel.size){
+    const names=SECTIONS.filter(x=>state.sel.has(x.id));
+    const label=state.sel.size===SECTIONS.length?T("allch"):[...new Set(names.map(x=>x.chTitle))].length===1&&names.length<DATA.chapters.find(c=>c.title===names[0].chTitle).sections.length
+      ? names[0].chTitle+" · "+names.map(x=>x.title).join(", ") : [...new Set(names.map(x=>x.chTitle))].join(", ");
+    const c=document.createElement("button");c.className="opt go";c.innerHTML=esc(T("cont"))+"<small lang=\"ko\">"+esc(label)+"</small>";
+    c.onclick=()=>{$("#langpick").hidden=true;};box.appendChild(c);
+  }
+  const all=document.createElement("button");all.className="opt";all.innerHTML=esc(T("allch"))+"<small>"+ALL.length+" "+esc(T("words"))+"</small>";
+  all.onclick=()=>choose(SECTIONS.map(x=>x.id));box.appendChild(all);
+  const grid=document.createElement("div");grid.className="chgrid";
+  DATA.chapters.forEach(ch=>{const b=document.createElement("button");b.className="opt";
+    b.innerHTML=esc(ch.title)+"<small lang=\"ko\">"+esc((ch.theme||"").split(" · ")[0])+"</small>";
+    b.onclick=()=>showPartPick(ch);grid.appendChild(b);});
+  box.appendChild(grid);
+  $("#langpick").hidden=false;
+}
+function showPartPick(ch){
+  setLpHead(T("pickpart").replace("{ch}",ch.title),(ch.theme||""));
+  const box=$("#lpopts");box.innerHTML="";
+  const n=ch.sections.reduce((a,x)=>a+x.cards.length,0);
+  const whole=document.createElement("button");whole.className="opt go";whole.innerHTML=esc(T("wholech"))+"<small>"+n+" "+esc(T("words"))+"</small>";
+  whole.onclick=()=>choose(ch.sections.map(x=>x.id));box.appendChild(whole);
+  ch.sections.forEach(sec=>{const b=document.createElement("button");b.className="opt";b.setAttribute("lang","ko");
+    b.innerHTML=esc(sec.title)+"<small>"+sec.cards.length+" "+esc(T("words"))+"</small>";
+    b.onclick=()=>choose([sec.id]);box.appendChild(b);});
+  const back=document.createElement("button");back.className="back";back.textContent=T("back");back.onclick=()=>showChPick(true);box.appendChild(back);
+}
+$("#chTop").onclick=()=>showChPick(true);
 
 /* ---------- chapter / section picker ---------- */
 function buildPicker(){
@@ -535,7 +583,7 @@ function render(){buildPicker();if(state.mode==="browse")renderBrowse();else ren
 const savedOpen=store.get("k5a_pickopen");
 setPicker(savedOpen===null||savedOpen===undefined ? window.innerWidth>=760 : savedOpen==="1", false);
 const savedLang=store.get("k5a_lang");
-if(savedLang&&LANGS.includes(savedLang)){applyLang(savedLang,false);render();}
+if(savedLang&&LANGS.includes(savedLang)){applyLang(savedLang,false);render();showChPick(true);}
 else{applyLang("en",false);render();showLangPick();}
 if("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
